@@ -1,0 +1,32 @@
+﻿@*@using WebLibrary.Entities*@
+@model List<Authors>
+
+@{
+    ViewBag.Title = "Index";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<h2>Авторы книг</h2>
+<table class="table table-striped">
+    <thead>
+        <tr>
+            <th>Табельный номер</th>
+            <th>Имя автора</th>
+            <th>Фамилия автора</th>
+        </tr>
+    </thead>
+
+    @foreach (var item in Model)
+    {
+    <tr>
+        <td>@item.Id</td>
+        <td>@item.FirstName</td>
+        <td>@item.LastName</td>
+        <td>@Html.ActionLink("Редактировать автора", "Edit", new { id = item.Id })</td><td>|</td>
+        <td>@Html.ActionLink("Удалить автора", "Delete", new { id = item.Id })</td>
+    </tr>
+    }
+</table>
+<b>@Html.ActionLink("Добавить автора", "Create")</b>
+
+

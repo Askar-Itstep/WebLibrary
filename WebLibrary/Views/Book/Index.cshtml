@@ -1,0 +1,32 @@
+﻿@model List<Books>
+
+@{
+    ViewBag.Title = "Index";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<h2>Книги</h2>
+<table class="table table-striped">
+    <thead>
+        <tr>
+            <th>Индекс</th><th>Название</th><th>Индекс автора</th><th>Цена</th><th>Количество страниц</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach(var item in Model)
+        {
+        <tr>
+            <td>@item.Id</td>
+            <td>@item.Title</td>
+            <td>@item.AuthorId</td>
+            <td>@item.Price</td>
+            <td>@item.Pages</td>
+            <td>@Html.ActionLink("Редактировать", "Edit", new { id = item.Id })<td>|</td>
+            <td>@Html.ActionLink("Удалить", "Delete", new { id = item.Id })</td>
+        </tr>
+        }
+    </tbody>
+</table>
+<br />
+<b>@Html.ActionLink("Добавить книгу", "Create")</b>
+
