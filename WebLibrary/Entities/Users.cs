@@ -12,6 +12,6 @@ namespace WebLibrary
 
         public string UsersName { get; set; }
 
-        public string Address { get; set; }
+        //public string Address { get; set; }
     }
 }
