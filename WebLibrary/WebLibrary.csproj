@@ -1,5 +1,6 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="15.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="..\packages\EntityFramework.6.4.0\build\EntityFramework.props" Condition="Exists('..\packages\EntityFramework.6.4.0\build\EntityFramework.props')" />
   <Import Project="$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)\TypeScript\Microsoft.TypeScript.Default.props" Condition="Exists('$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)\TypeScript\Microsoft.TypeScript.Default.props')" />
   <Import Project="..\packages\Microsoft.CodeDom.Providers.DotNetCompilerPlatform.2.0.0\build\net46\Microsoft.CodeDom.Providers.DotNetCompilerPlatform.props" Condition="Exists('..\packages\Microsoft.CodeDom.Providers.DotNetCompilerPlatform.2.0.0\build\net46\Microsoft.CodeDom.Providers.DotNetCompilerPlatform.props')" />
   <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
@@ -36,6 +37,7 @@
     <DefineConstants>DEBUG;TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
+    <PlatformTarget>AnyCPU</PlatformTarget>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
@@ -48,10 +50,10 @@
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="EntityFramework, Version=6.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089, processorArchitecture=MSIL">
-      <HintPath>..\packages\EntityFramework.6.2.0\lib\net45\EntityFramework.dll</HintPath>
+      <HintPath>..\packages\EntityFramework.6.4.0\lib\net45\EntityFramework.dll</HintPath>
     </Reference>
     <Reference Include="EntityFramework.SqlServer, Version=6.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089, processorArchitecture=MSIL">
-      <HintPath>..\packages\EntityFramework.6.2.0\lib\net45\EntityFramework.SqlServer.dll</HintPath>
+      <HintPath>..\packages\EntityFramework.6.4.0\lib\net45\EntityFramework.SqlServer.dll</HintPath>
     </Reference>
     <Reference Include="Microsoft.CSharp" />
     <Reference Include="System" />
@@ -136,26 +138,36 @@
     <Compile Include="App_Start\BundleConfig.cs" />
     <Compile Include="App_Start\FilterConfig.cs" />
     <Compile Include="App_Start\RouteConfig.cs" />
+    <Compile Include="Controllers\GenreController.cs" />
+    <Compile Include="Controllers\UseBookController.cs" />
+    <Compile Include="Controllers\UserController.cs" />
     <Compile Include="Entities\Authors.cs" />
     <Compile Include="Entities\Books.cs" />
     <Compile Include="Controllers\AuthorController.cs" />
     <Compile Include="Controllers\BookController.cs" />
     <Compile Include="Controllers\HomeController.cs" />
+    <Compile Include="Entities\Genres.cs" />
     <Compile Include="Global.asax.cs">
       <DependentUpon>Global.asax</DependentUpon>
     </Compile>
     <Compile Include="Entities\Model1.cs" />
-    <Compile Include="Migrations\201912150359109_FirstMigration.cs" />
-    <Compile Include="Migrations\201912150359109_FirstMigration.Designer.cs">
-      <DependentUpon>201912150359109_FirstMigration.cs</DependentUpon>
+    <Compile Include="Migrations\201912151452139_First.cs" />
+    <Compile Include="Migrations\201912151452139_First.Designer.cs">
+      <DependentUpon>201912151452139_First.cs</DependentUpon>
     </Compile>
-    <Compile Include="Migrations\201912150401266_Alt-User-Drop_adr.cs" />
-    <Compile Include="Migrations\201912150401266_Alt-User-Drop_adr.Designer.cs">
-      <DependentUpon>201912150401266_Alt-User-Drop_adr.cs</DependentUpon>
+    <Compile Include="Migrations\201912151542204_Alt-Len-NameGenre.cs" />
+    <Compile Include="Migrations\201912151542204_Alt-Len-NameGenre.designer.cs">
+      <DependentUpon>201912151542204_Alt-Len-NameGenre.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Migrations\201912171124135_DelInterface.cs" />
+    <Compile Include="Migrations\201912171124135_DelInterface.designer.cs">
+      <DependentUpon>201912171124135_DelInterface.cs</DependentUpon>
     </Compile>
     <Compile Include="Migrations\Configuration.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Entities\UseBooks.cs" />
     <Compile Include="Entities\Users.cs" />
+    <Compile Include="Utils\MyHelpers.cs" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="Content\bootstrap-theme.css" />
@@ -309,7 +321,6 @@
     <Content Include="Views\Home\Contact.cshtml" />
     <Content Include="Views\Home\Index.cshtml" />
     <Content Include="Views\Author\Index.cshtml" />
-    <Content Include="Views\Author\Create.cshtml" />
     <Content Include="Views\Author\Edit.cshtml" />
     <Content Include="Views\Book\Index.cshtml" />
     <Content Include="Scripts\umd\popper.min.js.map" />
@@ -325,6 +336,19 @@
     <Content Include="Views\Book\Create.cshtml" />
     <Content Include="Views\Book\Edit.cshtml" />
     <Content Include="Views\Book\Delete.cshtml" />
+    <Content Include="Views\Genre\Index.cshtml" />
+    <Content Include="Views\Genre\Create.cshtml" />
+    <Content Include="Views\Genre\Edit.cshtml" />
+    <Content Include="Views\Author\Create.cshtml" />
+    <Content Include="Views\User\Index.cshtml" />
+    <Content Include="Views\User\Create.cshtml" />
+    <Content Include="Views\User\Delete.cshtml" />
+    <Content Include="Views\User\Edit.cshtml" />
+    <Content Include="Views\UseBook\Index.cshtml" />
+    <Content Include="Views\UseBook\Create.cshtml" />
+    <Content Include="Views\UseBook\Edit.cshtml" />
+    <Content Include="Views\UseBook\Delete.cshtml" />
+    <Content Include="Views\UseBook\Details.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />
@@ -340,11 +364,14 @@
     <Service Include="{4A0DDDB5-7A95-4FBF-97CC-616D07737A77}" />
   </ItemGroup>
   <ItemGroup>
-    <EmbeddedResource Include="Migrations\201912150359109_FirstMigration.resx">
-      <DependentUpon>201912150359109_FirstMigration.cs</DependentUpon>
+    <EmbeddedResource Include="Migrations\201912151452139_First.resx">
+      <DependentUpon>201912151452139_First.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="Migrations\201912150401266_Alt-User-Drop_adr.resx">
-      <DependentUpon>201912150401266_Alt-User-Drop_adr.cs</DependentUpon>
+    <EmbeddedResource Include="Migrations\201912151542204_Alt-Len-NameGenre.resx">
+      <DependentUpon>201912151542204_Alt-Len-NameGenre.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201912171124135_DelInterface.resx">
+      <DependentUpon>201912171124135_DelInterface.cs</DependentUpon>
     </EmbeddedResource>
   </ItemGroup>
   <PropertyGroup>
@@ -381,7 +408,10 @@
       <ErrorText>Данный проект ссылается на пакеты NuGet, отсутствующие на этом компьютере. Используйте восстановление пакетов NuGet, чтобы скачать их.  Дополнительную информацию см. по адресу: http://go.microsoft.com/fwlink/?LinkID=322105. Отсутствует следующий файл: {0}.</ErrorText>
     </PropertyGroup>
     <Error Condition="!Exists('..\packages\Microsoft.CodeDom.Providers.DotNetCompilerPlatform.2.0.0\build\net46\Microsoft.CodeDom.Providers.DotNetCompilerPlatform.props')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\Microsoft.CodeDom.Providers.DotNetCompilerPlatform.2.0.0\build\net46\Microsoft.CodeDom.Providers.DotNetCompilerPlatform.props'))" />
+    <Error Condition="!Exists('..\packages\EntityFramework.6.4.0\build\EntityFramework.props')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\EntityFramework.6.4.0\build\EntityFramework.props'))" />
+    <Error Condition="!Exists('..\packages\EntityFramework.6.4.0\build\EntityFramework.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\EntityFramework.6.4.0\build\EntityFramework.targets'))" />
   </Target>
+  <Import Project="..\packages\EntityFramework.6.4.0\build\EntityFramework.targets" Condition="Exists('..\packages\EntityFramework.6.4.0\build\EntityFramework.targets')" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it.
        Other similar extension points exist, see Microsoft.Common.targets.
   <Target Name="BeforeBuild">

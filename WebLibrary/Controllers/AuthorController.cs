@@ -29,6 +29,10 @@ namespace WebLibrary.Controllers
         [HttpPost]
         public ActionResult Create(Authors author)
             {
+            if(author.Id == 0)
+            {
+                Console.WriteLine("Id IS NULL!");
+            }
                 using (Model1 db = new Model1())
                 {
                     if (ModelState.IsValid)

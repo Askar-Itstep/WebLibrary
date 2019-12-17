@@ -1,18 +1,18 @@
-namespace WebLibrary.Migrations
+﻿namespace WebLibrary.Migrations
 {
     using System;
     using System.Data.Entity.Migrations;
     
-    public partial class AltUserDrop_adr : DbMigration
+    public partial class DelInterface : DbMigration
     {
         public override void Up()
         {
-            DropColumn("dbo.Users", "Address");
+            DropColumn("dbo.Books", "Name");
         }
         
         public override void Down()
         {
-            AddColumn("dbo.Users", "Address", c => c.String());
+            AddColumn("dbo.Books", "Name", c => c.String());
         }
     }
 }

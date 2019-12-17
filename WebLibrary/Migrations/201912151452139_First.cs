@@ -3,7 +3,7 @@ namespace WebLibrary.Migrations
     using System;
     using System.Data.Entity.Migrations;
     
-    public partial class FirstMigration : DbMigration
+    public partial class First : DbMigration
     {
         public override void Up()
         {
@@ -12,7 +12,7 @@ namespace WebLibrary.Migrations
                 c => new
                     {
                         Id = c.Int(nullable: false, identity: true),
-                        FirstName = c.String(),
+                        FirstName = c.String(nullable: false),
                         LastName = c.String(),
                     })
                 .PrimaryKey(t => t.Id);
@@ -22,10 +22,30 @@ namespace WebLibrary.Migrations
                 c => new
                     {
                         Id = c.Int(nullable: false, identity: true),
-                        Title = c.String(),
-                        Price = c.Int(nullable: false),
-                        AuthorId = c.Int(nullable: false),
-                        Pages = c.Int(nullable: false),
+                        Title = c.String(maxLength: 100),
+                        Price = c.Int(),
+                        AuthorId = c.Int(),
+                        Pages = c.Int(),
+                        GenreId = c.Int(),
+                    })
+                .PrimaryKey(t => t.Id);
+            
+            CreateTable(
+                "dbo.Genres",
+                c => new
+                    {
+                        Id = c.Int(nullable: false, identity: true),
+                        Name = c.String(maxLength: 10),
+                    })
+                .PrimaryKey(t => t.Id);
+            
+            CreateTable(
+                "dbo.UseBooks",
+                c => new
+                    {
+                        Id = c.Int(nullable: false, identity: true),
+                        UserId = c.Int(),
+                        BookId = c.Int(),
                     })
                 .PrimaryKey(t => t.Id);
             
@@ -34,8 +54,7 @@ namespace WebLibrary.Migrations
                 c => new
                     {
                         Id = c.Int(nullable: false, identity: true),
-                        UsersName = c.String(),
-                        Address = c.String(),
+                        UserName = c.String(maxLength: 100),
                     })
                 .PrimaryKey(t => t.Id);
             
@@ -44,6 +63,8 @@ namespace WebLibrary.Migrations
         public override void Down()
         {
             DropTable("dbo.Users");
+            DropTable("dbo.UseBooks");
+            DropTable("dbo.Genres");
             DropTable("dbo.Books");
             DropTable("dbo.Authors");
         }

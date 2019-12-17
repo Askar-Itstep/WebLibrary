@@ -1,0 +1,27 @@
+﻿@model List<WebLibrary.Genres>
+
+@{
+    ViewBag.Title = "Index";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<h2>Index</h2>
+
+<table class="table table-striped">
+    <tr>
+        <th>ID</th>
+        <th>Name</th>
+    </tr>
+    @foreach (var item in Model)
+    {        
+    <tr>
+        <td>@item.Id</td>
+        <td>@item.Name</td>
+        <td>@Html.ActionLink("Редактировать", "Edit", new { id = item.Id })</td>
+        <td>|</td>
+        <td>@Html.ActionLink("Удалить", "Delete", new { id = item.Id })</td>
+    </tr>
+    }
+
+</table>
+@Html.ActionLink("Создать новый жанр", "Create")

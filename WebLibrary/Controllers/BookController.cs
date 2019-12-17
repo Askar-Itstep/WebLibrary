@@ -52,12 +52,16 @@ namespace WebLibrary.Controllers
         {
             if (id == null)
                 return HttpNotFound();
+
             using(Model1 db = new Model1())
             {
+                Books book = db.Books.Find(id);
                 ViewBag.AuthorList = new SelectList(db.Authors.ToList(), "Id", "LastName");
+                ViewBag.GenreList = new SelectList(db.Genres.ToList(), "Id", "Name");
+                return View(book);
             }
             
-            return View();
+            
         }
         [HttpPost]
         public ActionResult Edit(Books book)    
@@ -95,7 +99,7 @@ namespace WebLibrary.Controllers
 
             using (Model1 db = new Model1())
             {
-                //db.Books.Remove(book);
+                //db.Books.Remove(book);    //при аннот. - ошибка???
                 db.Entry(book).State = EntityState.Deleted;
                 db.SaveChanges();                
             }

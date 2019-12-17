@@ -1,4 +1,5 @@
-﻿@model List<Books>
+﻿@using WebLibrary.Utils
+@model List<Books>
 
 @{
     ViewBag.Title = "Index";
@@ -6,27 +7,36 @@
 }
 
 <h2>Книги</h2>
-<table class="table table-striped">
+@*<table class="table table-striped">
     <thead>
         <tr>
-            <th>Индекс</th><th>Название</th><th>Индекс автора</th><th>Цена</th><th>Количество страниц</th>
+            <th>Индекс</th>
+            <th>Название</th>
+            <td>Индекс жанра</td>
+            <th>Индекс автора</th>
+            <th>Цена</th>
+            <th>Количество страниц</th>
         </tr>
     </thead>
     <tbody>
-        @foreach(var item in Model)
+        @foreach (var item in Model)
         {
-        <tr>
-            <td>@item.Id</td>
-            <td>@item.Title</td>
-            <td>@item.AuthorId</td>
-            <td>@item.Price</td>
-            <td>@item.Pages</td>
-            <td>@Html.ActionLink("Редактировать", "Edit", new { id = item.Id })<td>|</td>
-            <td>@Html.ActionLink("Удалить", "Delete", new { id = item.Id })</td>
-        </tr>
+
+            <tr>
+                <td>@item.Id</td>
+                    <td>@item.Title</td>
+                    <td>@item.GenreId</td>
+                    <td>@item.AuthorId</td>
+                    <td>@item.Price</td>
+                    <td>@item.Pages</td>
+                    <td>@Html.ActionLink("Редактировать", "Edit", new { id = item.Id })
+                    <td>|</td>
+                    <td>@Html.ActionLink("Удалить", "Delete", new { id = item.Id })</td>
+                </tr>
         }
     </tbody>
-</table>
+</table>*@
+@Html.CreateTableList(Model, ".table table-striped")
 <br />
 <b>@Html.ActionLink("Добавить книгу", "Create")</b>
 
