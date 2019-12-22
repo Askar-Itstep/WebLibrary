@@ -139,7 +139,7 @@
     <Compile Include="App_Start\FilterConfig.cs" />
     <Compile Include="App_Start\RouteConfig.cs" />
     <Compile Include="Controllers\GenreController.cs" />
-    <Compile Include="Controllers\UseBookController.cs" />
+    <Compile Include="Controllers\OrderBookController.cs" />
     <Compile Include="Controllers\UserController.cs" />
     <Compile Include="Entities\Authors.cs" />
     <Compile Include="Entities\Books.cs" />
@@ -163,9 +163,17 @@
     <Compile Include="Migrations\201912171124135_DelInterface.designer.cs">
       <DependentUpon>201912171124135_DelInterface.cs</DependentUpon>
     </Compile>
+    <Compile Include="Migrations\201912221247298_AltOrderBooks.cs" />
+    <Compile Include="Migrations\201912221247298_AltOrderBooks.designer.cs">
+      <DependentUpon>201912221247298_AltOrderBooks.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Migrations\201912221409063_AltKeyOrderBooks.cs" />
+    <Compile Include="Migrations\201912221409063_AltKeyOrderBooks.designer.cs">
+      <DependentUpon>201912221409063_AltKeyOrderBooks.cs</DependentUpon>
+    </Compile>
     <Compile Include="Migrations\Configuration.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Entities\UseBooks.cs" />
+    <Compile Include="Entities\OrderBooks.cs" />
     <Compile Include="Entities\Users.cs" />
     <Compile Include="Utils\MyHelpers.cs" />
   </ItemGroup>
@@ -344,11 +352,11 @@
     <Content Include="Views\User\Create.cshtml" />
     <Content Include="Views\User\Delete.cshtml" />
     <Content Include="Views\User\Edit.cshtml" />
-    <Content Include="Views\UseBook\Index.cshtml" />
-    <Content Include="Views\UseBook\Create.cshtml" />
-    <Content Include="Views\UseBook\Edit.cshtml" />
-    <Content Include="Views\UseBook\Delete.cshtml" />
-    <Content Include="Views\UseBook\Details.cshtml" />
+    <Content Include="Views\OrderBook\Index.cshtml" />
+    <Content Include="Views\OrderBook\Create.cshtml" />
+    <Content Include="Views\OrderBook\Edit.cshtml" />
+    <Content Include="Views\OrderBook\Delete.cshtml" />
+    <Content Include="Views\OrderBook\Details.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />
@@ -372,6 +380,12 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Migrations\201912171124135_DelInterface.resx">
       <DependentUpon>201912171124135_DelInterface.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201912221247298_AltOrderBooks.resx">
+      <DependentUpon>201912221247298_AltOrderBooks.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201912221409063_AltKeyOrderBooks.resx">
+      <DependentUpon>201912221409063_AltKeyOrderBooks.cs</DependentUpon>
     </EmbeddedResource>
   </ItemGroup>
   <PropertyGroup>

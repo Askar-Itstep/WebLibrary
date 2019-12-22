@@ -1,32 +1,32 @@
-﻿@using WebLibrary.Utils
-@model WebLibrary.UseBooks
+﻿@model WebLibrary.OrderBooks
 
 @{
-    ViewBag.Title = "Detail";
+    ViewBag.Title = "Details";
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
 
-<h2>Detail</h2>
+<h2>Details</h2>
 
 <div>
-    <h4>UseBooks</h4>
+    <h4>OrderBooks</h4>
     <hr />
     <dl class="dl-horizontal">
         <dt>
-            @Html.MyPrintHelper("UserName", 16)
+            @Html.DisplayNameFor(model => model.Books.Title)
         </dt>
 
         <dd>
-            @Html.MyPrintHelper(ViewBag.UserName as string, 18)
+            @Html.DisplayFor(model => model.Books.Title)
         </dd>
 
         <dt>
-            @Html.MyPrintHelper("Title", 16)
+            @Html.DisplayNameFor(model => model.Users.UserName)
         </dt>
 
         <dd>
-            @Html.MyPrintHelper(ViewBag.BookTitle as string, 18)
+            @Html.DisplayFor(model => model.Users.UserName)
         </dd>
+
     </dl>
 </div>
 <p>

@@ -6,14 +6,18 @@ namespace WebLibrary
     using System.ComponentModel.DataAnnotations.Schema;
     using System.Data.Entity.Spatial;
 
-    public partial class UseBooks
+    public partial class OrderBooks
     {
         [Key]
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public int Id { get; set; }
 
-        public int? UserId { get; set; }
+        [ForeignKey(nameof(Users))]
+        public int? UsersId { get; set; }
+        virtual public Users Users { get; set; }
 
-        public int? BookId { get; set; }
+        [ForeignKey("Books")]
+        public int? BooksId { get; set; }
+        virtual public Books Books { get; set; }
     }
 }

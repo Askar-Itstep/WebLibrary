@@ -27,6 +27,7 @@ namespace WebLibrary.Controllers
             using (Model1 db = new Model1())
             {
                 ViewBag.AuthorList = new SelectList(db.Authors.ToList(), "Id", "LastName");
+                ViewBag.GenreList = new SelectList(db.Genres.ToList(), "Id", "Name");
             }
             return View();
 
