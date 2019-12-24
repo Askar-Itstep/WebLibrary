@@ -7,32 +7,40 @@
 }
 
 @Scripts.Render("~/scripts/jquery-3.4.1.min.js")
+@Scripts.Render("~/scripts/jquery.unobtrusive-ajax.min.js")
+@*@Scripts.Render("~/scripts/myScript.js")*@
+
 <script>
     $(document).ready(function () {
-        //$('tr').on("click", function (e) {    //криво работ., блокир. др. ссылки
-            //var id = $(this).children(':first').text();
-
-        $('.read').on("click", function (e) {   //без хелперов
-            var id = $(this).parent().parent().children(':first').text();
-            e.preventDefault();
-            $.ajax({
-                url: '/Book/_UsersReadThisBook',
-                method: 'GET',
-                data: { id: id },
-                success: function (data) {
-                    $('#myResult').html(data)
-                },
-                error: function (e) {
-                    console.log("error")
-                }
+            //----------2)клик по строке------------
+            //$('tr').on("click", function (e) {    //работ., НО блокир. др. ссылки
+            //    var id = $(this).children(':first').text();
+            //    e.preventDefault();
+            //    e.stopPropagation();
+            //    $.ajax({
+            //        url: '/Book/_UsersReadThisBook',
+            //        method: 'GET',
+            //        data: { id: id },
+            //        success: function (data) {
+            //            $('#myResult').html(data)
+            //        },
+            //        error: function (e) {
+            //            console.log("error")
+            //        }
+            //    });
+                //--------3)клик по ссылке--------
+            $('.read').on("click", function (e) {   
+                var id = $(this).parent().parent().children(':first').text();
+                e.preventDefault();
+               $('#myResult').load('@Url.Action("_UsersReadThisBook", "Book")?id='+id)
             });
-            @*$('#myResult').load('@Url.Action("_UsersReadThisBook", "Book")?id='+id)*@
-        });
-    })
+        })
 </script>
+
+
 <h2>Книги</h2>
 <table class="table table-striped table-hover" ">
-    <thead>        
+    <thead>
         <tr>
             <th>Индекс</th>
             <th>Название</th>
@@ -63,16 +71,16 @@
     </tbody>
 </table>
 
-@*@Html.CreateTableList(Model, ".table table-striped")*@    
+@*@Html.CreateTableList(Model, ".table table-striped")*@
 <br />
 
 @*вар.1*@
 @*@{
-    if (list != null)
-    {
-        @Html.Partial("Partial/_UsersReadThisBook", list)
-    }
-}*@
+        if (list != null)
+        {
+            @Html.Partial("Partial/_UsersReadThisBook", list)
+        }
+    }*@
 <div id="myResult"></div>
 <br />
 <b>@Html.ActionLink("Добавить книгу", "Create")</b>
