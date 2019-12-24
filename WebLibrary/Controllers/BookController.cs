@@ -10,7 +10,7 @@ namespace WebLibrary.Controllers
 
     public class BookController : Controller
     {
-        public static List<Users> UserList { get; set; }    //
+        public static List<Users> UserList { get; set; }    //static-для вар.1
         public ActionResult _UsersReadThisBook(int? id)//ShowUserRead(int? id)   //замена -для возвр. PartView
         {
             //System.Diagnostics.Debug.WriteLine("id: " + id);
@@ -25,6 +25,7 @@ namespace WebLibrary.Controllers
                 UserList = orders.Select(o => o.Users).ToList();    //а из них пользователей
 
                 //return RedirectToAction("Index"); //вар.1
+                ViewBag.Book = db.Books.Find(id).Title;
                 return PartialView(UserList);   //error-при нахожд. представл. в папке  Partial?!
             }
            
