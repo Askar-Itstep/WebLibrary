@@ -17,10 +17,14 @@ namespace WebLibrary
 
         public int? Price { get; set; }
 
-        public int? AuthorId { get; set; }
+        [ForeignKey("Authors")]
+        public int? AuthorsId { get; set; }
+        virtual public Authors Authors { get; set; }
 
         public int? Pages { get; set; }
 
-        public int? GenreId { get; set; }
+        [ForeignKey("Genres")]
+        public int? GenresId { get; set; }
+        virtual public Genres Genres { get; set; }
     }
 }

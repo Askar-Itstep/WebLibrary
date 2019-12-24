@@ -28,23 +28,19 @@ namespace WebLibrary.Controllers
 
         [HttpPost]
         public ActionResult Create(Authors author)
+        {
+            using (Model1 db = new Model1())
             {
-            if(author.Id == 0)
-            {
-                Console.WriteLine("Id IS NULL!");
-            }
-                using (Model1 db = new Model1())
+                if (ModelState.IsValid)
                 {
-                    if (ModelState.IsValid)
-                    {
-                        db.Authors.Add(author);
-                        db.SaveChanges();
-                    }
-                    else return View(author);
+                    db.Authors.Add(author);
+                    db.SaveChanges();
                 }
-                return Redirect("Index");
-
+                else return View(author);
             }
+            return Redirect("Index");
+
+        }
 
         public ActionResult Details()
         {
@@ -82,7 +78,7 @@ namespace WebLibrary.Controllers
             using (Model1 db = new Model1())
             {
                 Authors author = db.Authors.Find(id);
-                List<Books> books = db.Books.Where(b => b.AuthorId == id).ToList();
+                List<Books> books = db.Books.Where(b => b.AuthorsId == id).ToList();
                 db.Books.RemoveRange(books);
                 db.Authors.Remove(author);
                 db.SaveChanges();

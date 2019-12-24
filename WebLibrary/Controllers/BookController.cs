@@ -10,13 +10,35 @@ namespace WebLibrary.Controllers
 
     public class BookController : Controller
     {
-        // GET: Book
+        public static List<Users> UserList { get; set; }    //
+        public ActionResult _UsersReadThisBook(int? id)//ShowUserRead(int? id)   //замена -для возвр. PartView
+        {
+            //System.Diagnostics.Debug.WriteLine("id: " + id);
+            UserList = new List<Users>(); 
+            using(Model1 db = new Model1())
+            {
+
+                var orders = db.OrderBooks            //выбрать все заказы этой книги
+                    .Include(o => o.Users)
+                    .Include(o => o.Books).Where(o => o.BooksId == id).ToList();
+
+                UserList = orders.Select(o => o.Users).ToList();    //а из них пользователей
+
+                //return RedirectToAction("Index"); //вар.1
+                return PartialView(UserList);   //error-при нахожд. представл. в папке  Partial?!
+            }
+           
+        }
+       
         public ActionResult Index()
         {
             using (Model1 db = new Model1())
             {
-                var books = db.Books.ToList();
+                var books = db.Books
+                    .Include(b => b.Authors).Include(b => b.Genres)
+                    .ToList();
 
+                //ViewBag.UsersReadThisBook = UserList; //вар.1
                 return View(books);
             }
         }
@@ -100,7 +122,7 @@ namespace WebLibrary.Controllers
 
             using (Model1 db = new Model1())
             {
-                //db.Books.Remove(book);    //при аннот. - ошибка???
+                //db.Books.Remove(book);    //при аннот. - ошибка?
                 db.Entry(book).State = EntityState.Deleted;
                 db.SaveChanges();                
             }

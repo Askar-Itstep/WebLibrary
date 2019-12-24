@@ -34,18 +34,18 @@
     </div>
 
     <div class="form-group">
-        @Html.LabelFor(model => model.AuthorId, htmlAttributes: new { @class = "control-label col-md-2" })
+        @Html.LabelFor(model => model.AuthorsId, htmlAttributes: new { @class = "control-label col-md-2" })
         <div class="col-md-10">
             @*@Html.EditorFor(model => model.AuthorId, new { htmlAttributes = new { @class = "form-control" } })*@
-            @Html.DropDownListFor(model => model.AuthorId, ViewBag.AuthorList as SelectList)
-            @Html.ValidationMessageFor(model => model.AuthorId, "", new { @class = "text-danger" })
+            @Html.DropDownListFor(model => model.AuthorsId, ViewBag.AuthorList as SelectList)
+            @Html.ValidationMessageFor(model => model.AuthorsId, "", new { @class = "text-danger" })
         </div>
     </div>
     <div class="form-group">
-        @Html.LabelFor(model => model.GenreId, htmlAttributes: new { @class = "control-label col-md-2" })
+        @Html.LabelFor(model => model.GenresId, htmlAttributes: new { @class = "control-label col-md-2" })
         <div class="col-md-10">
-            @Html.DropDownListFor(model => model.GenreId, ViewBag.GenreList as SelectList)
-            @Html.ValidationMessageFor(model => model.AuthorId, "", new { @class = "text-danger" })
+            @Html.DropDownListFor(model => model.GenresId, ViewBag.GenreList as SelectList)
+            @Html.ValidationMessageFor(model => model.AuthorsId, "", new { @class = "text-danger" })
         </div>
     </div>
     <div class="form-group">

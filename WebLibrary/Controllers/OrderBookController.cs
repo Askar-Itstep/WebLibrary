@@ -60,10 +60,18 @@ namespace WebLibrary.Controllers
             }
             using(Model1 db = new Model1())
             {
-                OrderBooks useBook = db.OrderBooks.Find(id);
                 ViewBag.UserList = new SelectList(db.Users.ToList(), "Id", "UserName");
                 ViewBag.BookList = new SelectList(db.Books.ToList(), "Id", "Title");
-                return View(useBook);
+
+                OrderBooks order = db.OrderBooks.Find(id);
+                var orderBooks = db.OrderBooks.Where(o => o.UsersId == order.UsersId).Take(5).ToList();
+                List<Books> bookList = new List<Books>();
+                orderBooks.ForEach(item =>
+                {
+                    bookList.Add(db.Books.Where(b => b.Id == item.BooksId).FirstOrDefault());
+                });
+                ViewBag.OrderedBookList = bookList;
+                return View(order);
             }
         }
         [HttpPost]
@@ -91,11 +99,9 @@ namespace WebLibrary.Controllers
             {
                 OrderBooks orderBook = db.OrderBooks.Find(id);
                 //int userId = (int)orderBook.UsersId;
-                //ViewBag.UserName = db.Users.Find(userId).UserName;    //так работ. без virtual (но скучно)
+                //ViewBag.UserName = db.Users.Find(userId).UserName;    //так работ. без virtual
                 ViewBag.UserName = orderBook.Users.UserName;    //без virtual - не работ.!
 
-                //int bookId = (int)orderBook.BooksId;
-                //ViewBag.BookTitle = db.Books.Find(bookId).Title;
                 ViewBag.BookTitle = orderBook.Books.Title;
                 return View(orderBook);
             }

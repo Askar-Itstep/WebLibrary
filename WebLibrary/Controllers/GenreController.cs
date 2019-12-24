@@ -22,10 +22,6 @@ namespace WebLibrary.Controllers
         [HttpGet]
         public ActionResult Create()
         {
-            using(Model1 db = new Model1())
-            {
-
-            }
             return View();
         }
         [HttpPost]
@@ -47,9 +43,9 @@ namespace WebLibrary.Controllers
         }
 
         [HttpGet]
-        public ActionResult Edit(int id)
+        public ActionResult Edit(int? id)
         {
-            if (id == 0)
+            if (id == null)
                 return HttpNotFound();
 
             using(Model1 db = new Model1())

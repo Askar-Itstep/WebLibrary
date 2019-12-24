@@ -1,0 +1,17 @@
+﻿@model List<Books>
+
+<h2>Top 5 Last Ordered Books Current User</h2>
+<table class="table table-striped">
+
+    @foreach (var item in Model)
+    {
+        <tr>
+            <td>@item.Title</td>
+            <td>@item.Price</td>
+            <td>@item.Pages</td>
+        </tr>
+
+    }
+</table>
+
+@*исп-ся в форме Edit*@

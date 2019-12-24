@@ -150,7 +150,7 @@
     <Compile Include="Global.asax.cs">
       <DependentUpon>Global.asax</DependentUpon>
     </Compile>
-    <Compile Include="Entities\Model1.cs" />
+    <Compile Include="Models\Model1.cs" />
     <Compile Include="Migrations\201912151452139_First.cs" />
     <Compile Include="Migrations\201912151452139_First.Designer.cs">
       <DependentUpon>201912151452139_First.cs</DependentUpon>
@@ -170,6 +170,10 @@
     <Compile Include="Migrations\201912221409063_AltKeyOrderBooks.cs" />
     <Compile Include="Migrations\201912221409063_AltKeyOrderBooks.designer.cs">
       <DependentUpon>201912221409063_AltKeyOrderBooks.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Migrations\201912221528218_AltBooks-AddKeysNavigation.cs" />
+    <Compile Include="Migrations\201912221528218_AltBooks-AddKeysNavigation.designer.cs">
+      <DependentUpon>201912221528218_AltBooks-AddKeysNavigation.cs</DependentUpon>
     </Compile>
     <Compile Include="Migrations\Configuration.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
@@ -238,6 +242,8 @@
     <Content Include="Scripts\jquery-3.4.1.slim.min.map" />
     <Content Include="Scripts\jquery-3.4.1.min.map" />
     <None Include="Scripts\jquery.validate-vsdoc.js" />
+    <Content Include="Scripts\jquery.unobtrusive-ajax.js" />
+    <Content Include="Scripts\jquery.unobtrusive-ajax.min.js" />
     <Content Include="Scripts\jquery.validate.js" />
     <Content Include="Scripts\jquery.validate.min.js" />
     <Content Include="Scripts\jquery.validate.unobtrusive.js" />
@@ -357,10 +363,12 @@
     <Content Include="Views\OrderBook\Edit.cshtml" />
     <Content Include="Views\OrderBook\Delete.cshtml" />
     <Content Include="Views\OrderBook\Details.cshtml" />
+    <Content Include="Views\Book\_UsersReadThisBook.cshtml" />
+    <Content Include="Views\OrderBook\_Top5Orders.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />
-    <Folder Include="Models\" />
+    <Folder Include="Views\Book\Partial\" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
@@ -386,6 +394,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Migrations\201912221409063_AltKeyOrderBooks.resx">
       <DependentUpon>201912221409063_AltKeyOrderBooks.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201912221528218_AltBooks-AddKeysNavigation.resx">
+      <DependentUpon>201912221528218_AltBooks-AddKeysNavigation.cs</DependentUpon>
     </EmbeddedResource>
   </ItemGroup>
   <PropertyGroup>
