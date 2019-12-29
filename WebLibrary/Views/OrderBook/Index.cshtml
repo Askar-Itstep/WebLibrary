@@ -5,36 +5,72 @@
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
 
-<h2>Index</h2>
+<script>
+    $(document).ready(function () {
+        $('#link').on('click', function (event) {
+            event.preventDefault();
+            console.log("open modal");
+            $('#exampleModalScrollable').modal('show');
+        });
+
+        $('.record').on('click', function (e) {
+            e.stopPropagation();
+            let id = $(this).attr('id');
+            $.ajax({
+                type: "GET",
+                datatype: "json",
+                url: "GetTop5/",
+                data: {
+                    userId: id
+                },
+                success: function (data) { 
+                    $('#divPartial').append(function () {
+                        var caption = '<h4>Книги пользователя</h4>';
+                        var table = document.createElement('table');
+                        $(table).prepend(caption)
+                        $(table).addClass('table table-striped')
+                        var trHead = '<tr><th>Title</th><th>Author</th><th>Genre</th><th>Price</th><th>Pages</th></tr>'
+                        $(table).append(trHead);
+                        $(data).each(function (indx, item) {    //может быть и 5 книг
+                            var trCurr = '<tr><td>' + item.Title + '</td><td>' + item.Authors.LastName + '</td><td>' + item.Genres.Name + '</td><td>' +
+                                + item.Price + '</td><td>' + item.Pages + '</td></tr>';
+                            $(table).append(trCurr)
+                        })
+                        return table;
+                    }); 
+                },
+                error: function (data) {
+                    console.log(data);
+                    alert("failed")
+                }
+            });
+        });
+    });
+</script>
+<h2>Заказы книг</h2>
 
 <p>
-    @Html.ActionLink("Create New", "Create")
+    @Html.ActionLink("Create new order", "Create", null, new { id = "link" })
 </p>
-<table class="table">
-    <tr>
-        <th>
-            @Html.DisplayNameFor(model => model.Books.Title)
-        </th>
-        <th>
-            @Html.DisplayNameFor(model => model.Users.UserName)
-        </th>
-        <th></th>
-    </tr>
 
-@foreach (var item in Model) {
-    <tr>
-        <td>
-            @Html.DisplayFor(modelItem => item.Books.Title)
-        </td>
-        <td>
-            @Html.DisplayFor(modelItem => item.Users.UserName)
-        </td>
-        <td>
-            @Html.ActionLink("Edit", "Edit", new { id=item.Id }) |
-            @Html.ActionLink("Details", "Details", new { id=item.Id }) |
-            @Html.ActionLink("Delete", "Delete", new { id=item.Id })
-        </td>
-    </tr>
-}
+<div class="modal fade" id="exampleModalScrollable" tabindex="-1" role="dialog" aria-labelledby="exampleModalScrollableTitle" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-scrollable" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="exampleModalScrollableTitle">Create order</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body" id="modal-body">
+                @Html.Partial("Partial/_CreatePartialView", new OrderBooks())
+            </div>
+        </div>
+    </div>
+</div>
+<div id="AjaxOrderTable">
+    @Html.Partial("Partial/_OrderPartialView", Model)
+</div>
 
-</table>
+<div id="divPartial"></div>
+

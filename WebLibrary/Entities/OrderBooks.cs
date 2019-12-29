@@ -18,6 +18,6 @@ namespace WebLibrary
 
         [ForeignKey("Books")]
         public int? BooksId { get; set; }
-        virtual public Books Books { get; set; }
+        virtual   public Books Books { get; set; }
     }
 }

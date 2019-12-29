@@ -360,12 +360,13 @@
     <Content Include="Views\User\Delete.cshtml" />
     <Content Include="Views\User\Edit.cshtml" />
     <Content Include="Views\OrderBook\Index.cshtml" />
-    <Content Include="Views\OrderBook\Create.cshtml" />
+    <Content Include="Views\OrderBook\Partial\_CreatePartialView.cshtml" />
     <Content Include="Views\OrderBook\Edit.cshtml" />
     <Content Include="Views\OrderBook\Delete.cshtml" />
     <Content Include="Views\OrderBook\Details.cshtml" />
     <Content Include="Views\Book\_UsersReadThisBook.cshtml" />
-    <Content Include="Views\OrderBook\_Top5Orders.cshtml" />
+    <Content Include="Views\OrderBook\Partial\_Top5Orders.cshtml" />
+    <Content Include="Views\OrderBook\Partial\_OrderPartialView.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />
