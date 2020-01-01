@@ -4,10 +4,10 @@
     ViewBag.Title = "Create";
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
-
 <h2>Create</h2>
 
-@using (Ajax.BeginForm("Create", new AjaxOptions { UpdateTargetId = "AjaxOrderTable" }))
+@using (Ajax.BeginForm("Create", new AjaxOptions { UpdateTargetId = "AjaxOrderTable", HttpMethod = "Post",
+                                                    Url="/OrderBook/Create", }))
 {
     @Html.AntiForgeryToken()
 
@@ -18,7 +18,6 @@
         <div class="form-group">
             @Html.LabelFor(model => model.UsersId, "UsersId", htmlAttributes: new { @class = "control-label col-md-2" })
             <div class="col-md-10">
-                @*@Html.DropDownList("UsersId", null, htmlAttributes: new { @class = "form-control" })*@
                 @Html.DropDownListFor(m => m.UsersId, ViewBag.UserList as SelectList)
                 @Html.ValidationMessageFor(model => model.UsersId, "", new { @class = "text-danger" })
             </div>
@@ -27,7 +26,6 @@
         <div class="form-group">
             @Html.LabelFor(model => model.BooksId, "BooksId", htmlAttributes: new { @class = "control-label col-md-2" })
             <div class="col-md-10">
-                @*@Html.DropDownList("BooksId", null, htmlAttributes: new { @class = "form-control" })*@
                 @Html.DropDownListFor(m => m.BooksId, ViewBag.BookList as SelectList)
                 @Html.ValidationMessageFor(model => model.BooksId, "", new { @class = "text-danger" })
             </div>
@@ -35,8 +33,9 @@
 
         <div class="form-group">
             <div class="col-md-offset-2 col-md-10">
-                <input type="submit" value="Create"  onclick="$('#exampleModalScrollable').modal('hide')"  class="btn btn-default" />
+                <input type="submit" value="Create" @*onclick = "$('#exampleModalScrollable').modal('hide')"*@ class="btn btn-default" />
             </div>
+            
         </div>
     </div>
 }

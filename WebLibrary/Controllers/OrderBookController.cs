@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Newtonsoft.Json;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Web;
@@ -19,37 +20,56 @@ namespace WebLibrary.Controllers
                 return View(orders);
             }
         }
+
         [HttpGet]
         public ActionResult Create()
         {
-            using(Model1 db = new Model1())
+            //var data = Request.QueryString;      //Request.Params ->data["order[1][value]"];
+            var userId = Request["UsersId"]; 
+            var bookId = Request["BooksId"]; 
+
+            if (userId != null && bookId != null)
             {
-                ViewBag.UserList =new SelectList(db.Users.ToList(), "Id", "UserName");
-                ViewBag.BookList = new SelectList(db.Books.ToList(), "Id", "Title");
-                return View();
+                using (Model1 db = new Model1())
+                {                    
+                    var order = new OrderBooks();
+                    order.UsersId = int.Parse(userId);
+                    order.BooksId = int.Parse(bookId);
+                    db.OrderBooks.Add(order);
+                    db.SaveChanges();
+                    ViewBag.UserList = new SelectList(db.Users.ToList(), "Id", "UserName");
+                    ViewBag.BookList = new SelectList(db.Books.ToList(), "Id", "Title");
+
+                    return PartialView("Partial/_OrderPartialView", db.OrderBooks.ToList());
+                }   
             }
-            
+            return PartialView("Partial/_CreatePartialView"); 
+                     
         }
-        [HttpPost]
-        public ActionResult Create(OrderBooks orderBook)
+
+        [HttpPost]//уже не исп-ся (и Ajax.BeginForm ) - script.js! (из-за двойной отправки)
+        [ValidateAntiForgeryToken]
+        public ActionResult Create(OrderBooks orderBook)  //
         {
-            if(orderBook == null)
+            if (orderBook == null)
             {
                 return HttpNotFound();
             }
             using (Model1 db = new Model1())
             {
+                ViewBag.UserList = new SelectList(db.Users.ToList(), "Id", "UsersName");
+                ViewBag.BookList = new SelectList(db.Books.ToList(), "Id", "Title");
+
                 if (ModelState.IsValid)
                 {
                     db.OrderBooks.Add(orderBook);
-                    db.SaveChanges();
-                    return RedirectToAction("Index");
+                    db.SaveChanges();           //Ajax.BeginForm - двойной клик или дребезг мыши??????
+                    return PartialView("Partial/_OrderPartialView", db.OrderBooks.ToList());
                 }
-                else
-                    return View(orderBook);
+                return PartialView("Partial/_CreatePartialView");
             }
         }
-        public ActionResult GetTop5(int? userId)
+        public ActionResult GetTop5(int? userId)    //вызов из index/ajax
         {
             using (Model1 db = new Model1())
             {
@@ -62,6 +82,7 @@ namespace WebLibrary.Controllers
                 };
             }
         }
+
         [HttpGet]
         public ActionResult Edit(int? id)   //id-orders
         {
@@ -80,6 +101,7 @@ namespace WebLibrary.Controllers
                 return View(order);
             }
         }
+
         //---------------выбрать 5 книг текущ. юзера---------------
         private static List<Books> GetBooks(int? userId)
         {
@@ -110,6 +132,7 @@ namespace WebLibrary.Controllers
                 return RedirectToAction("Index");
             }
         }
+
         [HttpGet]
         public ActionResult Delete(int? id)
         {
@@ -129,6 +152,7 @@ namespace WebLibrary.Controllers
                 return View(orderBook);
             }
         }
+
         [HttpPost]
         public ActionResult Delete(OrderBooks orderBook)
         {

@@ -11,7 +11,7 @@ namespace WebLibrary.Controllers
     public class BookController : Controller
     {
         public static List<Users> UserList { get; set; }    //static-для вар.1
-        public ActionResult _UsersReadThisBook(int? id)//ShowUserRead(int? id)   //замена -для возвр. PartView
+        public ActionResult _UsersReadThisBook(int? id)//замена -для возвр. PartView
         {
             System.Diagnostics.Debug.WriteLine("id: " + id);
             UserList = new List<Users>(); 

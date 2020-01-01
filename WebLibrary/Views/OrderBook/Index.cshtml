@@ -7,23 +7,17 @@
 
 <script>
     $(document).ready(function () {
-        $('#link').on('click', function (event) {
-            event.preventDefault();
-            console.log("open modal");
-            $('#exampleModalScrollable').modal('show');
-        });
-
         $('.record').on('click', function (e) {
             e.stopPropagation();
             let id = $(this).attr('id');
             $.ajax({
                 type: "GET",
                 datatype: "json",
-                url: "GetTop5/",
+                url: "OrderBook/GetTop5/",  //или это
                 data: {
                     userId: id
                 },
-                success: function (data) { 
+                success: function (data) {
                     $('#divPartial').append(function () {
                         var caption = '<h4>Книги пользователя</h4>';
                         var table = document.createElement('table');
@@ -37,14 +31,73 @@
                             $(table).append(trCurr)
                         })
                         return table;
-                    }); 
+                    });
                 },
-                error: function (data) {
-                    console.log(data);
-                    alert("failed")
+                error: function (data) {    //или это
+                    $.ajax({
+                        type: 'GET',
+                        datatype: 'json',
+                        url: 'GetTop5/',
+                        data: { userId: id },
+                        success: function (data) {
+                            $('#divPartial').append(function () {
+                                var caption = '<h4>Книги пользователя</h4>';
+                                var table = document.createElement('table');
+                                $(table).prepend(caption)
+                                $(table).addClass('table table-striped')
+                                var trHead = '<tr><th>Title</th><th>Author</th><th>Genre</th><th>Price</th><th>Pages</th></tr>'
+                                $(table).append(trHead);
+                                $(data).each(function (indx, item) {    //может быть и 5 книг
+                                    var trCurr = '<tr><td>' + item.Title + '</td><td>' + item.Authors.LastName + '</td><td>' + item.Genres.Name + '</td><td>' +
+                                        + item.Price + '</td><td>' + item.Pages + '</td></tr>';
+                                    $(table).append(trCurr)
+                                })
+                                return table;
+                            });
+                        },
+                        error: function (data) {
+                            console.log(data);
+                            alert("failed")
+                        }
+                    });
                 }
             });
         });
+        $('#link').on('click', function (event) {
+            event.preventDefault();
+            event.stopPropagation();
+            console.log("open modal");
+            $('input[type=submit]').attr("disabled", false)
+            $('#exampleModalScrollable').modal('show');
+        });
+        //--------------AJAX--CreateForm---исправление. Ajax.Begin----------------------
+        var myForm = document.forms[0]; 
+        var mydata;
+        $(myForm).on('submit', function (e) {
+            console.log(mydata)
+            $.ajax({
+                type: 'GET',
+                //dataType: 'json',
+                url: "/OrderBook/Create/",
+                data: mydata,
+                success: function (data) {
+                    $('#AjaxOrderTable').html("").append(data)
+                },
+                error: function (status, errorMsg) {
+                    alert("Error!");
+                    console.log("Статус: " + status + " Ошибка: " + errorMsg)
+                }
+            })
+        });
+        $('input[type=submit]').on('click', function (e) {
+                $(this).attr('disabled', 'disabled');
+                $('#exampleModalScrollable').modal('hide');
+                //var userId = $('select[name=UsersId] option:selected').val();
+                //bundle = { "userId": userId, "bookId": bookId}
+                mydata = $(myForm).serialize(); //text; Array()->json
+                $(myForm).triggerHandler('submit');
+            })
+
     });
 </script>
 <h2>Заказы книг</h2>

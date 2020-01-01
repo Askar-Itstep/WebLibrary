@@ -13,13 +13,13 @@ namespace WebLibrary.Utils
             string innerHtml = $"<p style=\"font-size:{fontSize}px\">{str}</p>";
             return new HtmlString(innerHtml);
         }
-        //исп-ся в предст. "Index"(пример надуманный, т.к. представл. привязано к типу List<Books>)
+        //исп-ся в предст. "Index Book"(представл. привязано к типу List<Books>)
         public static MvcHtmlString CreateTableList(this HtmlHelper helper, List<Books> items, string cssClassName)
         {
             TagBuilder tbl = new TagBuilder("table");
             tbl.AddCssClass(cssClassName);
             TagBuilder rowHeader = new TagBuilder("tr");
-            var props = items[0].GetType().GetProperties();  //массив св-в объекта Books
+            var props = items[0].GetType().GetProperties();  //массив св-в 1-го объекта Books
             
             foreach (var i in props)    //шапка табл.
             {
