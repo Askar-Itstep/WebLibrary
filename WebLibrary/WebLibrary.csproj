@@ -147,8 +147,13 @@
     <Compile Include="Controllers\BookController.cs" />
     <Compile Include="Controllers\HomeController.cs" />
     <Compile Include="Entities\Genres.cs" />
+    <Compile Include="Entities\Image.cs" />
     <Compile Include="Global.asax.cs">
       <DependentUpon>Global.asax</DependentUpon>
+    </Compile>
+    <Compile Include="Migrations\202001081551458_AddImageTable.cs" />
+    <Compile Include="Migrations\202001081551458_AddImageTable.designer.cs">
+      <DependentUpon>202001081551458_AddImageTable.cs</DependentUpon>
     </Compile>
     <Compile Include="Models\Model1.cs" />
     <Compile Include="Migrations\201912151452139_First.cs" />
@@ -336,7 +341,7 @@
     <Content Include="Views\Home\Contact.cshtml" />
     <Content Include="Views\Home\Index.cshtml" />
     <Content Include="Views\Author\Index.cshtml" />
-    <Content Include="Views\Author\Edit.cshtml" />
+    <Content Include="Views\Author\Partial\_EditPartialView.cshtml" />
     <Content Include="Views\Book\Index.cshtml" />
     <Content Include="Scripts\umd\popper.min.js.map" />
     <Content Include="Scripts\umd\popper.js.map" />
@@ -354,7 +359,7 @@
     <Content Include="Views\Genre\Index.cshtml" />
     <Content Include="Views\Genre\Create.cshtml" />
     <Content Include="Views\Genre\Edit.cshtml" />
-    <Content Include="Views\Author\Create.cshtml" />
+    <Content Include="Views\Author\Partial\_CreatePartialView.cshtml" />
     <Content Include="Views\User\Index.cshtml" />
     <Content Include="Views\User\Create.cshtml" />
     <Content Include="Views\User\Delete.cshtml" />
@@ -364,13 +369,13 @@
     <Content Include="Views\OrderBook\Edit.cshtml" />
     <Content Include="Views\OrderBook\Delete.cshtml" />
     <Content Include="Views\OrderBook\Details.cshtml" />
-    <Content Include="Views\Book\_UsersReadThisBook.cshtml" />
+    <Content Include="Views\Book\Partial\_UsersReadThisBook.cshtml" />
     <Content Include="Views\OrderBook\Partial\_Top5Orders.cshtml" />
     <Content Include="Views\OrderBook\Partial\_OrderPartialView.cshtml" />
+    <Content Include="Views\Author\Partial\_AuthorPartialView.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />
-    <Folder Include="Views\Book\Partial\" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
@@ -399,6 +404,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Migrations\201912221528218_AltBooks-AddKeysNavigation.resx">
       <DependentUpon>201912221528218_AltBooks-AddKeysNavigation.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\202001081551458_AddImageTable.resx">
+      <DependentUpon>202001081551458_AddImageTable.cs</DependentUpon>
     </EmbeddedResource>
   </ItemGroup>
   <PropertyGroup>

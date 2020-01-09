@@ -5,36 +5,76 @@
     Layout = "~/Views/Shared/_Layout.cshtml";
     List<Users> list = ViewBag.UsersReadThisBook;
 }
-
-@*@Scripts.Render("~/scripts/jquery-3.4.1.min.js")
-    @Scripts.Render("~/scripts/jquery.unobtrusive-ajax.min.js")
-    @Scripts.Render("~/scripts/myScript.js")*@
-
 <script>
     $(document).ready(function () {
             //----------2)клик по строке------------
-            //$('tr').on("click", function (e) {    //работ., НО блокир. др. ссылки
-            //    var id = $(this).children(':first').text();
-            //    e.preventDefault();
-            //    e.stopPropagation();
-            //    $.ajax({
-            //        url: '/Book/_UsersReadThisBook',
-            //        method: 'GET',
-            //        data: { id: id },
-            //        success: function (data) {
-            //            $('#myResult').html(data)
-            //        },
-            //        error: function (e) {
-            //            console.log("error")
-            //        }
-            //    });
+        $('.row').on("click", function (e) {    //работ.
+            e.stopPropagation();
+            var id = $(this).children(':first').text();
+            $.ajax({
+                url: '/Book/UsersReadThisBook',
+                method: 'GET',
+                data: { id: id },
+                success: function (data) {
+                    $('#myResult').html(data)
+                },
+                error: function (e) {
+                    console.log("error")
+                }
+            });
                 //--------3)клик по ссылке--------
-            $('.read').on("click", function (e) {
+            @*$('.read').on("click", function (e) {
                 var id = $(this).parent().parent().children(':first').text();
                 e.preventDefault();
-               $('#myResult').load('@Url.Action("_UsersReadThisBook/", "Book")?id='+id)
-            });
-        })
+               $('#myResult').load('@Url.Action("_UsersReadThisBook/", "Book")?id='+id)*@
+        });
+        //------------No SelectList! -------------------------------
+        $('#createBookLink').on('click', function (e) {
+            e.preventDefault();
+            console.log("Create Book!")
+            var data;
+            $.ajax({
+                dataType: "json",
+                method: "GET",
+                url: "/Book/PreCreate",
+                data: data,
+                success: function (data) {
+                    var result = JSON.parse(data);
+                    $(result).each(function (i, item) {
+                        if (item["FirstName"] != undefined) {
+                            var author = new Author(item["Id"], item["FirstName"], item["LastName"])
+                            authors.push(author)
+                        }
+                        else if (item["Name"] != undefined) {
+                            var genre = new Genre(item["Id"], item["Name"])
+                            genres.push(genre)
+                        }
+                    })
+                    //console.log(genres)
+                    localStorage.clear();
+                    localStorage.setItem("authors", JSON.stringify(authors));
+                    localStorage.setItem("genres", JSON.stringify(genres));
+                    $(location).attr('href', '/Book/Create')    //переход (остаток кода там)
+                },
+                error: function (e, msg) {
+                    alert(msg);
+                }
+            })
+
+        });
+        var authors = []
+        var genres = []
+        class Author {
+            constructor(Id, FirstName, LastName) {
+                this.Id = Id, this.FirstName = FirstName, this.LastName = LastName
+            }
+        }
+        class Genre {
+            constructor(Id, Name) {
+                this.Id = Id, this.Name = Name
+            }
+        }
+    })
 </script>
 
 
@@ -53,14 +93,14 @@
     <tbody>
         @foreach (var item in Model)
         {
-            <tr>
+            <tr class="row">
                 <td>@item.Id</td>
                 <td>@item.Title</td>
                 <td>@item.Genres.Name</td>
                 <td>@item.Authors.LastName</td>
                 <td>@item.Price</td>
                 <td>@item.Pages</td>
-                <td><a href="#" class="read">Прочитавшие</a></td>
+                @*<td><a href="#" class="read">Прочитавшие</a></td>*@
                 <td>|</td>
                 <td>@Html.ActionLink("Редактировать", "Edit", new { id = item.Id })
                 <td>|</td>
@@ -73,14 +113,6 @@
 
 @*@Html.CreateTableList(Model, ".table table-striped")*@
 <br />
-
-@*вар.1*@
-@*@{
-        if (list != null)
-        {
-            @Html.Partial("Partial/_UsersReadThisBook", list)
-        }
-    }*@
 <div id="myResult"></div>
-<br />
-<b>@Html.ActionLink("Добавить книгу", "Create")</b>
+
+<b>@Html.ActionLink("Добавить книгу", "PreCreate", null, new { id = "createBookLink"})</b>

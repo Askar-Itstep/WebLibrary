@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Data.Entity;
 using System.Linq;
@@ -9,42 +10,54 @@ namespace WebLibrary.Controllers
 {
     public class AuthorController : Controller
     {
-        // GET: Authors
         public ActionResult Index()
+        {
+            using (Model1 db = new Model1())
             {
-                using (Model1 db = new Model1())
-                {
-                    var authors = db.Authors.ToList();
+                //ViewBag.UserList = new SelectList(db.Users.ToList(), "Id", "UserName");
+                //ViewBag.BookList = new SelectList(db.Books.ToList(), "Id", "Title");
+                var authors = db.Authors.ToList();
 
-                    return View(authors);
-                }
+                return View(authors);
             }
+        }
 
         [HttpGet]
         public ActionResult Create()
         {
-           return View();
-        }
-
-        [HttpPost]
-        public ActionResult Create(Authors author)
-        {
+            var firstName = Request["FirstName"];
+            var lastName = Request["LastName"];
             using (Model1 db = new Model1())
             {
-                if (ModelState.IsValid)
+                if(firstName != null && lastName != null)
                 {
-                    db.Authors.Add(author);
+                    db.Authors.Add(new Authors { FirstName = firstName, LastName = lastName });
                     db.SaveChanges();
+                    return PartialView("Partial/_AuthorPartialView", db.Authors.ToList());
                 }
-                else return View(author);
             }
-            return Redirect("Index");
-
+                return PartialView("Partial/_CreatePartialView"); ;
         }
+
+        //[HttpPost]        //уже не исп-ся (переопред. Ajax.BeginForm из-за двойной отправки)
+        //public ActionResult Create(Authors author)
+        //{
+        //    using (Model1 db = new Model1())
+        //    {
+        //        if (ModelState.IsValid)
+        //        {
+        //            db.Authors.Add(author);
+        //            db.SaveChanges();
+        //        }
+        //        else return View(author);
+        //    }
+        //    return Redirect("Index");
+
+        //}
 
         public ActionResult Details()
         {
-           return new HttpStatusCodeResult(403);            
+            return new HttpStatusCodeResult(403);
         }
 
         [HttpGet]
@@ -52,11 +65,23 @@ namespace WebLibrary.Controllers
         {
             if (id == null)
                 return HttpNotFound();
-            using(Model1 db = new Model1())
+            using (Model1 db = new Model1())
             {
                 Authors author = db.Authors.Find(id);
-                return View(author);
-            }            
+                if (author != null)
+                {
+                    ViewBag.MsgError = "Yes, author is found!";
+                    return new JsonResult {
+                        Data = new ArrayList { author, ViewBag.MsgError },
+                        JsonRequestBehavior = JsonRequestBehavior.AllowGet
+                    };
+                }
+                else
+                {
+                    ViewBag.MsgError = "No, author not found!";
+                    return PartialView("Partial/AuthorPartialView", db.Authors.ToList());
+                }
+            }
         }
         [HttpPost]
         public ActionResult Edit(Authors author)
@@ -83,7 +108,7 @@ namespace WebLibrary.Controllers
                 db.Authors.Remove(author);
                 db.SaveChanges();
             }
-                return RedirectToAction("Index");
+            return RedirectToAction("Index");
         }
     }
 }

@@ -4,29 +4,113 @@
 @{
     ViewBag.Title = "Index";
     Layout = "~/Views/Shared/_Layout.cshtml";
+    Authors author = new Authors();
+
+    //string msgError = ViewBag.MsgError;
 }
+<script>
+    $(document).ready(function () {
+        //-----Create-----------------
+        $('#linkAuthorCreate').on('click', function (event) {
+            event.preventDefault();
+            console.log("open modal");
+            $('input #createSubmit').attr("disabled", false)
+            $('#exampleModalScrollable').modal('show');
+            //------исправл. двойной отправки из Create\Ajax.BeginForm-----------
+            var myForm = document.forms[0];
+            $('input #createSubmit]').on('click', function (e) {
+                e.preventDefault();
+                $('#exampleModalScrollable').modal('hide');
+                $('input[type=submit]').attr("disabled", "disabled");
+                $(myForm).triggerHandler('submit');
+            });
 
-<h2>Авторы книг</h2>
-<table class="table table-striped">
-    <thead>
-        <tr>
-            <th>Табельный номер</th>
-            <th>Имя автора</th>
-            <th>Фамилия автора</th>
-        </tr>
-    </thead>
+            $(myForm).on('submit', function (e) {
+                $.ajax({
+                    type: 'GET',
+                    url: '/Author/Create/',
+                    data: $(this).serialize(),   //
+                    success: function (data) {
+                        console.log("data: " + data);
+                        $('#AjaxAuthorsTable').html("").append(data);
+                    },
+                    error: function (msg) {
+                        alert(msg);
+                    }
+                })
+            });
+        });
 
-    @foreach (var item in Model)
-    {
-    <tr>
-        <td>@item.Id</td>
-        <td>@item.FirstName</td>
-        <td>@item.LastName</td>
-        <td>@Html.ActionLink("Редактировать автора", "Edit", new { id = item.Id })</td><td>|</td>
-        <td>@Html.ActionLink("Удалить автора", "Delete", new { id = item.Id })</td>
-    </tr>
-    }
-</table>
-<b>@Html.ActionLink("Добавить автора", "Create")</b>
+        //---------------------Edit---------------------------
+        $('.linkAuthorEdit')
+            .on('click', function (e) {
+                e.preventDefault();
+                //console.log(e.target)
+                $('input #editSubmit').attr('disabled', false);
+                var authorId = $(e.target).parent().parent().attr('id');
+                //console.log("authorID: " + authorId); 
+                $.ajax({
+                    url: "/Author/Edit/",
+                    type: "GET",
+                    datatype: "json",
+                    data: { id: authorId },
+                    success: function (data) {
+                        $('#modalEdit').modal('show');
+                        //console.log(data[0]["FirstName"])
+                        $('#editAuthorId').val(data[0]["Id"])
+                        $('#editFirstName').val(data[0]["FirstName"])
+                        $('#editLastName').val(data[0]["LastName"])
+                    },
+                    error: function (e, msg) {
+                        $('#hiddenError').text(msg[1]);
+                        alert(msg[1])
+                    }
+                })
+            });
+    })
+
+
+</script>
+<p>
+    @Html.ActionLink("Create new author", "Create", null, new { id = "linkAuthorCreate" })
+</p>
+
+<div class="modal fade" id="exampleModalScrollable" tabindex="-1" role="dialog" aria-labelledby="exampleModalScrollableTitle" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-scrollable" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="exampleModalScrollableTitle">Create order</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body" id="modal-body">
+                @Html.Partial("Partial/_CreatePartialView", new Authors())
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="modalEdit" tabindex="-1" role="dialog" aria-labelledby="exampleModalScrollableTitle" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-scrollable" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="exampleModalScrollableTitle">Create order</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body" id="modal-body">
+                @Html.Partial("Partial/_EditPartialView", author)
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id="AjaxAuthorsTable">
+    @Html.Partial("Partial/_AuthorPartialView", Model)
+</div>
+
+
 
 

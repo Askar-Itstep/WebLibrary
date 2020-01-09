@@ -11,7 +11,7 @@ namespace WebLibrary.Controllers
     {
         public ActionResult Index()
         {
-            using(Model1 db = new Model1())
+            using (Model1 db = new Model1())
             {
                 ViewBag.UserList = new SelectList(db.Users.ToList(), "Id", "UserName");
                 ViewBag.BookList = new SelectList(db.Books.ToList(), "Id", "Title");
@@ -22,32 +22,30 @@ namespace WebLibrary.Controllers
         }
 
         [HttpGet]
-        public ActionResult Create()
+        public ActionResult Create()    //fix double click (переопред. ajax для ссылки)
         {
-            //var data = Request.QueryString;      //Request.Params ->data["order[1][value]"];
-            var userId = Request["UsersId"]; 
-            var bookId = Request["BooksId"]; 
-
-            if (userId != null && bookId != null)
+            var userId = Request["UsersId"];
+            var bookId = Request["BooksId"];
+            using (Model1 db = new Model1())
             {
-                using (Model1 db = new Model1())
-                {                    
+                ViewBag.UserList = new SelectList(db.Users.ToList(), "Id", "UserName");
+                ViewBag.BookList = new SelectList(db.Books.ToList(), "Id", "Title");
+                if (userId != null && bookId != null)
+                {
                     var order = new OrderBooks();
                     order.UsersId = int.Parse(userId);
                     order.BooksId = int.Parse(bookId);
                     db.OrderBooks.Add(order);
                     db.SaveChanges();
-                    ViewBag.UserList = new SelectList(db.Users.ToList(), "Id", "UserName");
-                    ViewBag.BookList = new SelectList(db.Books.ToList(), "Id", "Title");
 
                     return PartialView("Partial/_OrderPartialView", db.OrderBooks.ToList());
-                }   
+                }
             }
-            return PartialView("Partial/_CreatePartialView"); 
-                     
+            return PartialView("Partial/_CreatePartialView");
+
         }
 
-        [HttpPost]//уже не исп-ся (и Ajax.BeginForm ) - script.js! (из-за двойной отправки)
+        [HttpPost]//уже не исп-ся (переопред. Ajax.BeginForm из-за двойной отправки)
         [ValidateAntiForgeryToken]
         public ActionResult Create(OrderBooks orderBook)  //
         {
@@ -74,7 +72,7 @@ namespace WebLibrary.Controllers
             using (Model1 db = new Model1())
             {
                 List<Books> bookList = GetBooks(userId);
-               
+
                 return new JsonResult
                 {
                     Data = bookList,
@@ -90,7 +88,7 @@ namespace WebLibrary.Controllers
             {
                 return HttpNotFound();
             }
-            using(Model1 db = new Model1())
+            using (Model1 db = new Model1())
             {
                 ViewBag.UserList = new SelectList(db.Users.ToList(), "Id", "UserName");
                 ViewBag.BookList = new SelectList(db.Books.ToList(), "Id", "Title");
@@ -102,8 +100,8 @@ namespace WebLibrary.Controllers
             }
         }
 
-        //---------------выбрать 5 книг текущ. юзера---------------
-        private static List<Books> GetBooks(int? userId)
+
+        private static List<Books> GetBooks(int? userId)//-выбрать 5 книг текущ. юзера--
         {
             using (Model1 db = new Model1())
             {
@@ -140,7 +138,7 @@ namespace WebLibrary.Controllers
             {
                 return HttpNotFound();
             }
-            using(Model1 db = new Model1())
+            using (Model1 db = new Model1())
             {
                 OrderBooks orderBook = db.OrderBooks.Find(id);
                 //int userId = (int)orderBook.UsersId;
@@ -163,7 +161,7 @@ namespace WebLibrary.Controllers
             using (Model1 db = new Model1())
             {
                 if (ModelState.IsValid)
-                {           
+                {
                     if (orderBook.BooksId == null || orderBook.UsersId == null)
                     {
                         OrderBooks use = db.OrderBooks.Find(orderBook.Id);
@@ -172,10 +170,10 @@ namespace WebLibrary.Controllers
                         db.SaveChanges();
                         return RedirectToAction("Index");
                     }
-                    else return HttpNotFound();                    
+                    else return HttpNotFound();
                 }
                 else
-                    return View(orderBook);                
+                    return View(orderBook);
             }
         }
         public ActionResult Details(int? id)

@@ -7,13 +7,13 @@
 
 <script>
     $(document).ready(function () {
-        $('.record').on('click', function (e) {
+        $('.record').on('click', function (e) { // _OrderPart.View\..<tr class="record..>
             e.stopPropagation();
             let id = $(this).attr('id');
             $.ajax({
                 type: "GET",
                 datatype: "json",
-                url: "OrderBook/GetTop5/",  //или это
+                url: "/OrderBook/GetTop5/",  //1
                 data: {
                     userId: id
                 },
@@ -33,46 +33,29 @@
                         return table;
                     });
                 },
-                error: function (data) {    //или это
-                    $.ajax({
-                        type: 'GET',
-                        datatype: 'json',
-                        url: 'GetTop5/',
-                        data: { userId: id },
-                        success: function (data) {
-                            $('#divPartial').append(function () {
-                                var caption = '<h4>Книги пользователя</h4>';
-                                var table = document.createElement('table');
-                                $(table).prepend(caption)
-                                $(table).addClass('table table-striped')
-                                var trHead = '<tr><th>Title</th><th>Author</th><th>Genre</th><th>Price</th><th>Pages</th></tr>'
-                                $(table).append(trHead);
-                                $(data).each(function (indx, item) {    //может быть и 5 книг
-                                    var trCurr = '<tr><td>' + item.Title + '</td><td>' + item.Authors.LastName + '</td><td>' + item.Genres.Name + '</td><td>' +
-                                        + item.Price + '</td><td>' + item.Pages + '</td></tr>';
-                                    $(table).append(trCurr)
-                                })
-                                return table;
-                            });
-                        },
-                        error: function (data) {
-                            console.log(data);
-                            alert("failed")
-                        }
-                    });
+                error: function (data) {
+
+                    console.log(data);
+                    alert("failed")
                 }
             });
         });
+        //--------------------Create-------------------------------
         $('#link').on('click', function (event) {
             event.preventDefault();
-            event.stopPropagation();
             console.log("open modal");
             $('input[type=submit]').attr("disabled", false)
             $('#exampleModalScrollable').modal('show');
         });
-        //--------------AJAX--CreateForm---исправление. Ajax.Begin----------------------
-        var myForm = document.forms[0]; 
+        //------------исправление. double-get CreatePartialView\Ajax.BeginForm -> sumbit----------------------
+        var myForm = document.forms[0];
         var mydata;
+        $('input[type=submit]').on('click', function (e) {
+            $(this).attr('disabled', 'disabled');
+            $('#exampleModalScrollable').modal('hide');
+            mydata = $(myForm).serialize(); //text! //Array()->json
+            $(myForm).triggerHandler('submit');
+        })
         $(myForm).on('submit', function (e) {
             console.log(mydata)
             $.ajax({
@@ -89,19 +72,11 @@
                 }
             })
         });
-        $('input[type=submit]').on('click', function (e) {
-                $(this).attr('disabled', 'disabled');
-                $('#exampleModalScrollable').modal('hide');
-                //var userId = $('select[name=UsersId] option:selected').val();
-                //bundle = { "userId": userId, "bookId": bookId}
-                mydata = $(myForm).serialize(); //text; Array()->json
-                $(myForm).triggerHandler('submit');
-            })
 
     });
 </script>
 <h2>Заказы книг</h2>
-
+@*id = "link"  - в обрабочике ajax (c.42)*@
 <p>
     @Html.ActionLink("Create new order", "Create", null, new { id = "link" })
 </p>
@@ -121,6 +96,7 @@
         </div>
     </div>
 </div>
+
 <div id="AjaxOrderTable">
     @Html.Partial("Partial/_OrderPartialView", Model)
 </div>

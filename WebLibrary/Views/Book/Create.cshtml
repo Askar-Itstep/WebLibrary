@@ -4,17 +4,48 @@
     ViewBag.Title = "Create";
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
+<script>
+    $(document).ready(function () {
+        var authors = JSON.parse(localStorage.getItem("authors"));
+        var genres = JSON.parse(localStorage.getItem("genres"));
+        //console.log(authors)
+        if (Array.isArray(authors) && Array.isArray(genres)) {
+            $(authors).each(function (i, item) {
+                var option = $("<option></option>")
+                //console.log($('#AuthorsId').children(":first-child").html())
+                $(option).val(item["Id"]).html(item["LastName"])
+                $('#AuthorsId').append(option)
+            })
+            $(genres).each(function (i, item) {
+                var option = $("<option></option>")
+                $(option).val(item["Id"]).html(item["Name"])
+                $('#GenresId').append(option)
+            })
+        }
+        else console.log("Sorry")
+    })
 
+</script>
 <h2>Create</h2>
 
-@using (Html.BeginForm()) 
+@using (Html.BeginForm())
 {
     @Html.AntiForgeryToken()
-    
+
 <div class="form-horizontal">
     <h4>Books</h4>
     <hr />
+
     @Html.ValidationSummary(true, "", new { @class = "text-danger" })
+    
+    <div style="display:flex">
+        <div style="width:8%; height:10px;"></div>
+        <div class="custom-file">
+            <input type="file" class="custom-file-input col-md-auto" id="customFile" enctype="multipart/form-data">
+            <label class="custom-file-label" for="customFile">Choose file</label>
+        </div>
+    </div>
+
     <div class="form-group">
         @Html.LabelFor(model => model.Title, htmlAttributes: new { @class = "control-label col-md-2" })
         <div class="col-md-10">
@@ -34,14 +65,16 @@
     <div class="form-group">
         @Html.LabelFor(model => model.AuthorsId, htmlAttributes: new { @class = "control-label col-md-2" })
         <div class="col-md-10">
-            @Html.DropDownListFor(model => model.AuthorsId, ViewBag.AuthorList as SelectList)
+            @*@Html.DropDownListFor(model => model.AuthorsId, ViewBag.AuthorList as SelectList)*@
+            <select id="AuthorsId" name="AuthorsId"></select>
             @Html.ValidationMessageFor(model => model.AuthorsId, "", new { @class = "text-danger" })
         </div>
     </div>
     <div class="form-group">
         @Html.LabelFor(model => model.GenresId, htmlAttributes: new { @class = "control-label col-md-2" })
         <div class="col-md-10">
-            @Html.DropDownListFor(model => model.GenresId, ViewBag.GenreList as SelectList)
+            @*@Html.DropDownListFor(model => model.GenresId, ViewBag.GenreList as SelectList)*@
+            <select id="GenresId" name="GenresId"></select>
             @Html.ValidationMessageFor(model => model.GenresId, "", new { @class = "text-danger" })
         </div>
     </div>
@@ -53,11 +86,15 @@
         </div>
     </div>
 
+
+
+
     <div class="form-group">
         <div class="col-md-offset-2 col-md-10">
             <input type="submit" value="Create" class="btn btn-default" />
         </div>
     </div>
+
 </div>
 }
 

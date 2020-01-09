@@ -1,4 +1,6 @@
-﻿using System;
+﻿using Newtonsoft.Json;
+using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Data.Entity;
 using System.Linq;
@@ -10,10 +12,10 @@ namespace WebLibrary.Controllers
 
     public class BookController : Controller
     {
-        public static List<Users> UserList { get; set; }    //static-для вар.1
-        public ActionResult _UsersReadThisBook(int? id)//замена -для возвр. PartView
+        public static List<Users> UserList { get; set; }   
+        public ActionResult UsersReadThisBook(int? id)//замена -для возвр. PartView
         {
-            System.Diagnostics.Debug.WriteLine("id: " + id);
+            //System.Diagnostics.Debug.WriteLine("id: " + id);
             UserList = new List<Users>(); 
             using(Model1 db = new Model1())
             {
@@ -24,9 +26,8 @@ namespace WebLibrary.Controllers
 
                 UserList = orders.Select(o => o.Users).ToList();    //а из них пользователей
 
-                //return RedirectToAction("Index"); //вар.1
                 ViewBag.Book = db.Books.Find(id).Title;
-                return PartialView(UserList);   //error-при нахожд. представл. в папке  Partial?!
+                return PartialView("Partial/_UsersReadThisBook", UserList);   
             }
            
         }
@@ -39,25 +40,39 @@ namespace WebLibrary.Controllers
                     .Include(b => b.Authors).Include(b => b.Genres)
                     .ToList();
 
-                //ViewBag.UsersReadThisBook = UserList; //вар.1
                 return View(books);
             }
         }
 
         [HttpGet]
-        public ActionResult Create()
+        public ActionResult PreCreate()
         {
             using (Model1 db = new Model1())
             {
-                ViewBag.AuthorList = new SelectList(db.Authors.ToList(), "Id", "LastName");
-                ViewBag.GenreList = new SelectList(db.Genres.ToList(), "Id", "Name");
-            }
-            return View();
+                //ViewBag.AuthorList = new SelectList(db.Authors.ToList(), "Id", "LastName");
+                //ViewBag.GenreList = new SelectList(db.Genres.ToList(), "Id", "Name");
+                var authorList = db.Authors.ToList();
+                var genreList = db.Genres.ToList();
+                var arrayList = new ArrayList(authorList);
+                arrayList.AddRange(genreList);
 
+                var json = JsonConvert.SerializeObject(arrayList); 
+                System.Diagnostics.Debug.WriteLine(json);
+                return new JsonResult  {
+                    Data = json,
+                    JsonRequestBehavior = JsonRequestBehavior.AllowGet
+                };
+            }
+        }
+        [HttpGet]
+        public ActionResult Create()
+        {
+            return View();
         }
 
         [HttpPost]
         public ActionResult Create(Books book)
+            //, IEnumerable<HttpPostedFile> files)
         {
             using (Model1 db = new Model1())
             {

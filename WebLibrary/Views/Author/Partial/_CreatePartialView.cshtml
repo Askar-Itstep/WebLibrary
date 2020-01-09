@@ -1,22 +1,20 @@
 ﻿@model WebLibrary.Authors
 
 @{
-    ViewBag.Title = "Edit";
+    ViewBag.Title = "Create";
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
 
-<h2>Edit</h2>
-
-@using (Html.BeginForm())
+<h2>Create</h2>
+@*действие формы переопределено из-за двойной отправки (дребезг мыши?)*@
+@using (Ajax.BeginForm("Create", new AjaxOptions { UpdateTargetId = "AjaxAuthorTable",  HttpMethod = "Post", Url = "/Author/Create"}))
 {
     @Html.AntiForgeryToken()
-    
+
     <div class="form-horizontal">
         <h4>Authors</h4>
         <hr />
         @Html.ValidationSummary(true, "", new { @class = "text-danger" })
-        @Html.HiddenFor(model => model.Id)
-
         <div class="form-group">
             @Html.LabelFor(model => model.FirstName, htmlAttributes: new { @class = "control-label col-md-2" })
             <div class="col-md-10">
@@ -35,8 +33,8 @@
 
         <div class="form-group">
             <div class="col-md-offset-2 col-md-10">
-                <input type="submit" value="Save" class="btn btn-default" />
-            </div>
+                <input type="submit" value="Create" id="createSubmit" class="btn btn-default" />
+            </div>@*onclick = "$('#exampleModalScrollable').modal('hide')"*@
         </div>
     </div>
 }

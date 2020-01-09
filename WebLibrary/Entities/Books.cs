@@ -26,5 +26,9 @@ namespace WebLibrary
         [ForeignKey("Genres")]
         public int? GenresId { get; set; }
         virtual public Genres Genres { get; set; }
+
+        [ForeignKey("Images")]
+        public int ImageId { get; set; }
+        virtual public Image Images { get; set;}
     }
 }
