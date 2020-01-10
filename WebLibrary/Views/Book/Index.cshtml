@@ -119,5 +119,9 @@
 @*@Html.CreateTableList(Model, ".table table-striped")*@
 <br />
 <div id="myResult"></div>
+<div style="display:flex; text-align:center">
 
-<b>@Html.ActionLink("Добавить книгу", "PreCreate", null, new { id = "createBookLink" })</b>
+    <b class = "col-md-3">@Html.ActionLink("Добавить книгу", "PreCreate", null, new { id = "createBookLink", @class="btn btn-primary" })</b>    
+    <b class = "col-md-3">@Html.ActionLink("Выбор книги по параметрам", "SurveyPage", null, new { id = "surveyBookLink", @class = "btn btn-info" })</b>
+
+</div>

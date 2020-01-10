@@ -3,7 +3,45 @@
 @{
     ViewBag.Title = "SurveyPage";
     Layout = "~/Views/Shared/_Layout.cshtml";
+    List<Genres> genres = ViewBag.GenreList;
 }
 
 <h2>SurveyPage</h2>
+<h3>Выберите книгу по категориям</h3>
 
+@using (Html.BeginForm("SurveyBook", "Book", FormMethod.Post))
+{
+<div style="display:flex; flex-direction:column">
+    <div class="form-group">
+        @Html.Label("Author", new { @class = "control-label col-md-2" })
+        @Html.DropDownListFor(model => model.AuthorsId, ViewBag.AuthorList as SelectList, new { @class = "form-control col-md-10" })
+    </div>
+
+    <div class="form-group">
+        @Html.Label("Genre", new { @class = "control-label col-md-2" })
+        <table class="table table-borderless" style="width:30%">
+            @foreach (var item in genres)
+            {
+                <tr>
+                    <td>@Html.Label(item.Name, new { @class = "form-check-label" })</td>               
+                    <td> @Html.RadioButton(@item.Name, new { @class = "form-check-input" })</td>
+                </tr>
+            }
+        </table>
+    </div>
+
+    <div class="form-group">
+        @Html.Label("С картинками", new { @class = "form-check-label" })
+        @Html.CheckBox("С картинками", false)
+    </div>
+
+    <div class="form-group">
+        @Html.LabelFor(m => m.Title, "Введите название книги")
+        @Html.TextBoxFor(m => m.Title)
+    </div>
+</div>
+    
+
+
+}
+<br />

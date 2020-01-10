@@ -71,19 +71,19 @@ namespace WebLibrary.Controllers
         {
             return View();
         }
-        [HttpPost]
-        public ActionResult Upload(HttpPostedFileBase upload)
-        {
-            var myfile = Request.Files;
-            var xfiles = Request.InputStream;
-            if (upload != null)
-            {
-                string fileName = System.IO.Path.GetFileName(upload.FileName);
-                // сохраняем файл в папку Files в проекте
-                upload.SaveAs(Server.MapPath("~/Files/" + fileName));
-            }
-            return RedirectToAction("Index");
-        }
+        //[HttpPost]
+        //public ActionResult Upload(HttpPostedFileBase upload)
+        //{
+        //    var myfile = Request.Files;
+        //    var xfiles = Request.InputStream;
+        //    if (upload != null)
+        //    {
+        //        string fileName = System.IO.Path.GetFileName(upload.FileName);
+        //        // сохраняем файл в папку Files в проекте
+        //        upload.SaveAs(Server.MapPath("~/Files/" + fileName));
+        //    }
+        //    return RedirectToAction("Index");
+        //}
         [HttpPost]
         //public ActionResult Create(Books book, HttpPostedFileBase upload)
         public async Task<ActionResult> Create(Books book, HttpPostedFileBase upload)
@@ -119,10 +119,20 @@ namespace WebLibrary.Controllers
                 //else return View(book);
             }
             return new JsonResult { Data = "Данные записаны", JsonRequestBehavior = JsonRequestBehavior.AllowGet };
-
         }
+        public ActionResult SurveyPage()
+        {
+            using(Model1 db = new Model1())
+            {
+                ViewBag.AuthorList = new SelectList(db.Authors.ToList(), "Id", "LastName");
+                ViewBag.GenreList = db.Genres.ToList();
+                return View();
+            }
+            
+        }
+
         [HttpGet]
-        public ActionResult Edit(int? id)
+        public ActionResult Edit(int? id)   //+image!
         {
             if (id == null)
                 return HttpNotFound();
@@ -134,8 +144,6 @@ namespace WebLibrary.Controllers
                 ViewBag.GenreList = new SelectList(db.Genres.ToList(), "Id", "Name");
                 return View(book);
             }
-            
-            
         }
         [HttpPost]
         public ActionResult Edit(Books book)    

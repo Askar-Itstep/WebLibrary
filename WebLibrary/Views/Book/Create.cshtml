@@ -29,7 +29,7 @@
         var myForm = document.forms[0];
         $('input[type=submit').on('click', function (e) {
             $(this).attr("disabled", "disabled");
-            $(myForm).triggerHandler('submit');   
+            $(myForm).triggerHandler('submit');
         });
         $(myForm).on('submit', function (e) {
             var files = document.getElementById('customFile').files;
@@ -57,8 +57,6 @@
                 alert("Браузер не поддерживает загрузку файлов HTML5!");
             }
         });
-
-
     })
 
 </script>
@@ -72,12 +70,12 @@
         @Html.ValidationSummary(true, "", new { @class = "text-danger" })
 
         <div style="display:flex">
-                <div style="width:8%; height:10px;"></div>
-                <div class="custom-file">
-                    <input type="file" class="custom-file-input col-md-auto" name="upload" accept="image/jpeg" id="customFile">
-                    <label class="custom-file-label" for="customFile">Choose file</label>
-                </div>
+            <div style="width:8%; height:10px;"></div>
+            <div class="custom-file">
+                <input type="file" class="custom-file-input col-md-auto" name="upload" accept="image/jpeg" id="customFile">
+                <label class="custom-file-label" for="customFile">Choose file</label>
             </div>
+        </div>
 
         <div class="form-group">
             @Html.LabelFor(model => model.Title, htmlAttributes: new { @class = "control-label col-md-2" })
