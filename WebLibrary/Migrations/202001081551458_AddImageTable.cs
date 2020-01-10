@@ -17,7 +17,7 @@
                     })
                 .PrimaryKey(t => t.Id);
             
-            AddColumn("dbo.Books", "ImageId", c => c.Int(nullable: false));
+            AddColumn("dbo.Books", "ImageId", c => c.Int(nullable: true));
             CreateIndex("dbo.Books", "ImageId");
             AddForeignKey("dbo.Books", "ImageId", "dbo.Images", "Id", cascadeDelete: true);
         }

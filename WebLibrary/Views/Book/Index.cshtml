@@ -8,7 +8,7 @@
 <script>
     $(document).ready(function () {
             //----------2)клик по строке------------
-        $('.row').on("click", function (e) {    //работ.
+        $('.myrow').on("click", function (e) {    //работ.
             e.stopPropagation();
             var id = $(this).children(':first').text();
             $.ajax({
@@ -28,7 +28,7 @@
                 e.preventDefault();
                $('#myResult').load('@Url.Action("_UsersReadThisBook/", "Book")?id='+id)*@
         });
-        //------------No SelectList! -------------------------------
+        //------------Create (No SelectList!) -------------------------------
         $('#createBookLink').on('click', function (e) {
             e.preventDefault();
             console.log("Create Book!")
@@ -54,10 +54,10 @@
                     localStorage.clear();
                     localStorage.setItem("authors", JSON.stringify(authors));
                     localStorage.setItem("genres", JSON.stringify(genres));
-                    $(location).attr('href', '/Book/Create')    //переход (остаток кода там)
+                    $(location).attr('href', '/Book/Create')    //переход to Create(остаток кода там)
                 },
-                error: function (e, msg) {
-                    alert(msg);
+                error: function (xhr, status, p3) {
+                    alert(xhr.responseText);
                 }
             })
 
@@ -84,18 +84,23 @@
         <tr>
             <th>Индекс</th>
             <th>Название</th>
+            <th>Изображение</th>
             <th>Жанр</th>
             <th>Автор</th>
             <th>Цена</th>
-            <th>Количество страниц</th>
+            <th>Кол. стр.</th>
         </tr>
     </thead>
     <tbody>
         @foreach (var item in Model)
         {
-            <tr class="row">
+            <tr class="myrow">
                 <td>@item.Id</td>
                 <td>@item.Title</td>
+                <td>
+                    @Html.Raw("<img style='width:80px; height:60px;' src=\"data:image/jpeg;base64,"
+                                            + Convert.ToBase64String(item.Images.ImageData) + "\" />")
+                </td>
                 <td>@item.Genres.Name</td>
                 <td>@item.Authors.LastName</td>
                 <td>@item.Price</td>
@@ -115,4 +120,4 @@
 <br />
 <div id="myResult"></div>
 
-<b>@Html.ActionLink("Добавить книгу", "PreCreate", null, new { id = "createBookLink"})</b>
+<b>@Html.ActionLink("Добавить книгу", "PreCreate", null, new { id = "createBookLink" })</b>

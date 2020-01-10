@@ -373,9 +373,11 @@
     <Content Include="Views\OrderBook\Partial\_Top5Orders.cshtml" />
     <Content Include="Views\OrderBook\Partial\_OrderPartialView.cshtml" />
     <Content Include="Views\Author\Partial\_AuthorPartialView.cshtml" />
+    <Content Include="Views\Book\SurveyPage.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />
+    <Folder Include="Files\" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
