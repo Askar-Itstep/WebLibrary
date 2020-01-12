@@ -5,43 +5,121 @@
     Layout = "~/Views/Shared/_Layout.cshtml";
     List<Genres> genres = ViewBag.GenreList;
 }
+<script>
+    $(document).ready(function () {
+        
+        //------send to Book/Survey-------------------
+        $('#surveyDiv').hide();
+        var myForm = document.forms[0];
+        $('input[type=submit]').on('click', function (e) {
+            $(this).attr('disabled', true);
+            $(myForm).triggerHandler('submit');
+        });
+        $(myForm).on('submit', function (e) {
+            e.preventDefault();
+            $.ajax({
+                dataType: "json",
+                method: "POST",
+                url: "/Book/SurveyPage",
+                data: $(myForm).serialize(),
+                success: function (data) {
+                    $('input[type=submit]').attr('disabled', false);
+                    $('#surveyDiv').show();
+                    var obj = JSON.parse(data);
+                    $(obj).each(function (i, item) {
+                        var author = item[0]["Authors"]["LastName"];
+                        $('#author').html(author)
+                        var genre = item[0]["Genres"]["Name"];
+                        $('#genre').html(genre);                            
+                        var title = item[0]["Title"];
+                        $('#title').html(title)
+                        var price = item[0]["Price"];
+                        $('#price').html(price)
+                        var pages = item[0]["Pages"];
+                        $('#pages').html(pages)
+                        
+                        var image = item[1];
+                        //console.log(image)
 
+                        $('#img').html("<img style='width:80px; height:60px;' src=\"data:image/jpeg;base64," + image + "\" />")
+
+                        console.log(author)
+                    });
+                    
+                    
+
+                },
+                error: function (xhr, error) {
+                    alert(xhr.status + "; " + error)
+                }
+            })
+        });
+    })
+
+</script>
 <h2>SurveyPage</h2>
 <h3>Выберите книгу по категориям</h3>
 
-@using (Html.BeginForm("SurveyBook", "Book", FormMethod.Post))
+@using (Ajax.BeginForm("SurveyPage", new AjaxOptions
 {
-<div style="display:flex; flex-direction:column">
-    <div class="form-group">
-        @Html.Label("Author", new { @class = "control-label col-md-2" })
-        @Html.DropDownListFor(model => model.AuthorsId, ViewBag.AuthorList as SelectList, new { @class = "form-control col-md-10" })
+    UpdateTargetId = "surveyDiv",
+    HttpMethod = "Post",
+    Url = "/Book/SurveyPage"
+}))
+{
+    <div style="display:flex; flex-direction:column">
+        <div class="form-group">
+            @Html.Label("Author", new { @class = "control-label col-md-2" })
+            @Html.DropDownListFor(model => model.AuthorsId, ViewBag.AuthorList as SelectList, new { @class = "form-control col-md-10" })
+        </div>
+
+        <div class="form-group">
+            @Html.Label("Genre", new { @class = "control-label col-md-2" })
+            <table class="table table-borderless" style="width:30%">
+                @foreach (var item in genres)
+                {
+                    <tr>
+                        <td>@Html.Label(@item.Name, new { @class = "form-check-label" })</td>
+                        <td> @Html.RadioButton("Genres", item.Id, new { @class = "form-check-input", id = item.Id })</td>
+                    </tr>
+                }
+            </table>
+        </div>
+
+        <div class="form-group">
+            @Html.Label("С картинками", new { @class = "form-check-label" })
+            @Html.CheckBox("IsImage", false)
+        </div>
+
+        <div class="form-group">
+            @Html.LabelFor(m => m.Title, "Введите название книги")
+            @Html.TextBoxFor(m => m.Title)
+        </div>
     </div>
-
-    <div class="form-group">
-        @Html.Label("Genre", new { @class = "control-label col-md-2" })
-        <table class="table table-borderless" style="width:30%">
-            @foreach (var item in genres)
-            {
-                <tr>
-                    <td>@Html.Label(item.Name, new { @class = "form-check-label" })</td>               
-                    <td> @Html.RadioButton(@item.Name, new { @class = "form-check-input" })</td>
-                </tr>
-            }
-        </table>
-    </div>
-
-    <div class="form-group">
-        @Html.Label("С картинками", new { @class = "form-check-label" })
-        @Html.CheckBox("С картинками", false)
-    </div>
-
-    <div class="form-group">
-        @Html.LabelFor(m => m.Title, "Введите название книги")
-        @Html.TextBoxFor(m => m.Title)
-    </div>
-</div>
-    
-
-
+    <input type="submit" value="Send" class="btn btn-primary" />
 }
 <br />
+
+<table id="surveyDiv" class="table table-borderless">
+    <thead>
+        <tr>
+            <th>Наименование</th>
+            <th>Автор</th>
+            <th>Жанр</th>
+            <th>Изображение</th>
+            <th>Цена</th>
+            <th>Кол-во стр.</th>
+        </tr>
+        
+    </thead>
+    <tbody>
+        <tr>
+            <td id="title"></td>
+            <td id="author"></td>
+            <td id="genre"></td>
+            <td id="img"></td>
+            <td id="price"></td>
+            <td id="pages"></td>
+        </tr>
+    </tbody>
+</table>

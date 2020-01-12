@@ -14,8 +14,6 @@ namespace WebLibrary.Controllers
         {
             using (Model1 db = new Model1())
             {
-                //ViewBag.UserList = new SelectList(db.Users.ToList(), "Id", "UserName");
-                //ViewBag.BookList = new SelectList(db.Books.ToList(), "Id", "Title");
                 var authors = db.Authors.ToList();
 
                 return View(authors);

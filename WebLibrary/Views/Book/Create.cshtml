@@ -6,15 +6,14 @@
 }
 <script>
     $(document).ready(function () {
-        //--------Получение авторов и жанров из Index ------------
+        //--------Получение авторов и жанров из Index (No ViewBag - No SelectList!)------------
         var authors = JSON.parse(localStorage.getItem("authors"));
         var genres = JSON.parse(localStorage.getItem("genres"));
-        //console.log(authors)
+        console.log(authors)
         if (Array.isArray(authors) && Array.isArray(genres)) {
             $(authors).each(function (i, item) {
                 var option = $("<option></option>")
-                //console.log($('#AuthorsId').children(":first-child").html())
-                $(option).val(item["Id"]).html(item["LastName"])
+                $(option).val(item["Id"]).html(item.LastName)    //=["LastName"]
                 $('#AuthorsId').append(option)
             })
             $(genres).each(function (i, item) {
@@ -25,7 +24,7 @@
         }
         else console.log("Sorry");
 
-        //------Upload Files (код по преодолению дребезга отправки)---------------------------
+        //------Upload Files (+ антидребезг отправки)---------------------------
         var myForm = document.forms[0];
         $('input[type=submit').on('click', function (e) {
             $(this).attr("disabled", "disabled");
@@ -49,8 +48,8 @@
                     success: function (result) {
                         alert(result);
                     },
-                    error: function (xhr, status, p3) {
-                        alert(xhr.responseText);
+                    error: function (xhr, status) {
+                        alert(xhr.responseText + "; " + status);
                     }
                 });
             } else {
@@ -114,9 +113,6 @@
                 @Html.ValidationMessageFor(model => model.Pages, "", new { @class = "text-danger" })
             </div>
         </div>
-
-
-
 
         <div class="form-group">
             <div class="col-md-offset-2 col-md-10">

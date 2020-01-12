@@ -8,7 +8,7 @@
 <script>
     $(document).ready(function () {
             //----------2)клик по строке------------
-        $('.myrow').on("click", function (e) {    //работ.
+        $('.myrow').on("click", function (e) {    //работ. (исправл.)
             e.stopPropagation();
             var id = $(this).children(':first').text();
             $.ajax({
@@ -28,7 +28,7 @@
                 e.preventDefault();
                $('#myResult').load('@Url.Action("_UsersReadThisBook/", "Book")?id='+id)*@
         });
-        //------------Create (No SelectList!) -------------------------------
+        //------------PreCreate (No ViewBag - No SelectList!) -------------------------------
         $('#createBookLink').on('click', function (e) {
             e.preventDefault();
             console.log("Create Book!")
@@ -60,7 +60,6 @@
                     alert(xhr.responseText);
                 }
             })
-
         });
         var authors = []
         var genres = []
