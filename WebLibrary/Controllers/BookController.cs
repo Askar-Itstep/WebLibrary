@@ -8,6 +8,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using System.Web;
 using System.Web.Mvc;
+using WebLibrary.Entities;
 
 namespace WebLibrary.Controllers
 {
@@ -15,6 +16,9 @@ namespace WebLibrary.Controllers
     public class BookController : Controller
     {
         public static List<Users> UserList { get; set; }
+        public static List<Statistic> Statistics { get; set; }
+        //========================= ActionMethods ======================================
+
         public ActionResult UsersReadThisBook(int? id)//замена -для возвр. PartView
         {
             UserList = new List<Users>();
@@ -43,7 +47,7 @@ namespace WebLibrary.Controllers
                 return View(books);
             }
         }
-
+        //==================================== Create ================================
         [HttpGet]   //No ViewBag - No SelectList!
         public ActionResult PreCreate() //Index-view ->this-> Index-view-> Create-view..
         {
@@ -115,7 +119,7 @@ namespace WebLibrary.Controllers
                 else return View(book);
             }
         }
-
+        //================================== SurveyPage =======================================
         [HttpGet]
         public ActionResult SurveyPage()
         {
@@ -134,70 +138,119 @@ namespace WebLibrary.Controllers
         {
             if (Request.Form.Count != 0)
             {
-                int authorId=0;
-                string title="";
+                Statistic statistic = new Statistic();
+                int authorId = 0;
+                string title = "";
                 int genreId = 0;
-                string isImageString = ""; 
+                string isImageString = "";
                 bool isImage = false;
-                foreach (string item in Request.Form.Keys)
-                {
-                    var value = Request.Form[item];
-                    if (value != null && value != "")
-                    {
-                        if (item == "AuthorsId")
-                            authorId = int.Parse(value);
-                        else if (item == "Genres")
-                            genreId = int.Parse(value);
-                        else if (item == "Title")
-                            title = value;
-                        else if(item == "IsImage")
-                        {
-                            isImageString = value;
-                            if (isImageString.Contains("true"))
-                                isImage = true;
-                            else isImage = false;
-                        }
-                    }
-                }
-                //------Seach-----------------                  
+                HandlerForm(statistic, ref authorId, ref title, ref genreId, ref isImageString, ref isImage);
+
+                //----------------Seach------------------------                  
                 using (Model1 db = new Model1())
                 {
-                    List<Books> books = db.Books.Include(nameof(Authors)).Include(nameof(Genres))
-                                            .ToList();
-                    if (authorId != 0)//1)all books for author
-                    {
-                        books = books.Where(b => b.AuthorsId == authorId).ToList();
-                    }
-                     
-
-                    if (title != "") //фильтрация по назв.   
-                    {
-                        books = books.Where(b => b.Title == title).ToList();
-                    }
-
-                    if (genreId != 0)   //..по жанру
-                    {
-                        books = books.Where(b => b.GenresId == genreId).ToList();
-                    }
-
-                    if (isImage == false)
-                        books = books.Where(b => b.ImageId == 0).ToList();
-                    //books.ForEach(b => System.Diagnostics.Debug.WriteLine(b.Title));
-                    ArrayList bigList = new ArrayList();
-                    books.ForEach(b =>
-                    {
-                        var imgData = Convert.ToBase64String(b.Images.ImageData);
-                        b.Images.ImageData = null;  //облегч. поклажи
-                        ArrayList list = new ArrayList(books);
-                        list.Add(imgData);                       
-                        bigList.Add(list);
-                    });                    
+                    Statistics = db.Statistics.ToList();
+                    Statistics.Add(statistic);
+                    db.SaveChanges();
+                    ArrayList bigList = GetRequestBooks(authorId, title, genreId, isImage, db);
                     var data = JsonConvert.SerializeObject(bigList);
-                    return new JsonResult { Data = data, JsonRequestBehavior = JsonRequestBehavior.DenyGet }; 
-                }                
+                    return new JsonResult { Data = data, JsonRequestBehavior = JsonRequestBehavior.DenyGet };
+                }
             }
             return View();
         }
+        private void HandlerForm(Statistic statistic, ref int authorId, ref string title, ref int genreId, ref string isImageString, ref bool isImage)
+        {
+            foreach (string item in Request.Form.Keys)
+            {
+                var value = Request.Form[item];
+                if (value != null && value != "")
+                {
+                    if (item == "AuthorsId")
+                    {
+                        statistic.CountAuthorChoice++;
+                        authorId = int.Parse(value);
+                    }
+                    else if (item == "Genres")
+                    {
+                        statistic.CountGenreChoice++;
+                        genreId = int.Parse(value);
+                    }
+                    else if (item == "Title")
+                    {
+                        statistic.CountTitleChoice++;
+                        title = value;
+                    }
+                    else if (item == "IsImage")
+                    {
+                        isImageString = value;
+                        if (isImageString.Contains("true"))
+                        {
+                            statistic.CountIsImageChoice++;
+                            isImage = true;
+                        }
+                        else isImage = false;
+                    }
+                }
+            }
+        }
+
+        private static ArrayList GetRequestBooks(int authorId, string title, int genreId, bool isImage, Model1 db)
+        {
+            List<Books> books = db.Books.Include(nameof(Authors)).Include(nameof(Genres))
+                                    .ToList();
+            if (authorId != 0)//1)all books for author
+                books = books.Where(b => b.AuthorsId == authorId).ToList();
+
+            if (title != "") //фильтрация по назв.
+                books = books.Where(b => b.Title == title).ToList();
+
+            if (genreId != 0)   //..по жанру
+                books = books.Where(b => b.GenresId == genreId).ToList();
+
+            if (isImage == false)
+                books = books.Where(b => b.ImageId == 0).ToList();
+            //books.ForEach(b => System.Diagnostics.Debug.WriteLine(b.Title));
+            ArrayList bigList = new ArrayList();
+            books.ForEach(b =>
+            {
+                var imgData = Convert.ToBase64String(b.Images.ImageData);
+                b.Images.ImageData = null;  //облегч. поклажи
+                ArrayList list = new ArrayList(books);
+                list.Add(imgData);
+                bigList.Add(list);
+            });
+            return bigList;
+        }
+
+
+        public ActionResult StatisticReport()
+        {
+            using(Model1 db = new Model1())
+            {
+                var fullStatistic = db.Statistics.ToList();
+                var fullCountAuthorChoice = db.Statistics.Sum(s => s.CountAuthorChoice);
+                var fullCountTitleChoice = db.Statistics.Sum(s => s.CountTitleChoice);
+                var fullCountGenreChoice = db.Statistics.Sum(s => s.CountGenreChoice);
+                var fullCountImageChoice = db.Statistics.Sum(s => s.CountIsImageChoice);
+
+                ViewBag.FullCountAuthorChoice = fullCountAuthorChoice;
+                ViewBag.FullCountTitleChoice = fullCountTitleChoice;
+                ViewBag.FullCountGenreChoice = fullCountGenreChoice;
+                ViewBag.FullCountImageChoice = fullCountImageChoice;
+                List<Tuple<int, string>> tuples = new List<Tuple<int, string>> {
+                    new Tuple<int, string>(fullCountAuthorChoice, "AuthorChoice"),
+                    new Tuple<int, string>(fullCountTitleChoice, "AuthorChoice"),
+                    new Tuple<int, string>(fullCountGenreChoice, "GenreChoice"),
+                    new Tuple<int, string>(fullCountImageChoice, "ImageChoice")
+                };
+                var orderedTuples = tuples.OrderByDescending(t => t.Item1).ToList();
+                ViewBag.MaxPop = orderedTuples[0].Item2;
+                ViewBag.MinPop = orderedTuples[3].Item2;
+                return View(fullStatistic);
+            }            
+        }
+        //============================== Edit ========================================
         [HttpGet]
         public ActionResult Edit(int? id)   
         {
@@ -243,7 +296,7 @@ namespace WebLibrary.Controllers
             }
             return RedirectToAction("Index");
         }
-
+        //=======================Delete=================================
         [HttpGet]
         public ActionResult Delete(int? id)
         {

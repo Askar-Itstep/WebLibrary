@@ -185,8 +185,10 @@ namespace WebLibrary.Controllers
             using (Model1 db = new Model1())
             {
                 OrderBooks orderBook = db.OrderBooks.Find(id);
-                ViewBag.UserName = orderBook.Users.UserName;
-                ViewBag.BookTitle = orderBook.Books.Title;
+                //ViewBag.UserName
+                var username = orderBook.Users.UserName;    //достат. первого обращения (virtual!)
+                //ViewBag.BookTitle
+                var title = orderBook.Books.Title;
                 return View(orderBook);
             }
         }

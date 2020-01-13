@@ -4,6 +4,7 @@ namespace WebLibrary
     using System.Data.Entity;
     using System.ComponentModel.DataAnnotations.Schema;
     using System.Linq;
+    using WebLibrary.Entities;
 
     public partial class Model1 : DbContext
     {
@@ -17,8 +18,9 @@ namespace WebLibrary
         public virtual DbSet<Users> Users { get; set; }
         public virtual DbSet<Genres> Genres { get; set; }
         public virtual DbSet<OrderBooks> OrderBooks { get; set; }
-
         public virtual DbSet<Image> Images { get; set; }
+        public virtual DbSet<Statistic> Statistics { get; set; }
+
         protected override void OnModelCreating(DbModelBuilder modelBuilder)
         {
         }

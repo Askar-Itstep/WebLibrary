@@ -1,0 +1,41 @@
+﻿@model List<WebLibrary.Entities.Statistic> 
+@{
+    ViewBag.Title = "Statistic";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<h2>Статистика критериев выбора:</h2>
+
+<table class="table table-striped">
+    <thead>
+        <tr>
+            <th>Автор</th><th>Название</th><th>Жанр</th><th>Наличие картинок</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model)
+        {
+            <tr>
+                <td>@item.CountAuthorChoice</td>
+                <td>@item.CountTitleChoice</td>
+                <td>@item.CountGenreChoice</td>
+                <td>@item.CountIsImageChoice</td>
+            </tr>
+        }           
+    </tbody>
+</table>
+<h3>Статистика запросов</h3>
+<table>
+    <tr>
+        <td><b>Максимально популярен поиск по:</b></td>
+        <td>@ViewBag.MaxPop</td>
+    </tr>
+    <tr>
+        <td><b>Самый не популярный поиск по:</b></td>
+        <td>@ViewBag.MinPop</td>
+    </tr>
+    <tr><td><b>Общее количество запросов по авторам:</b></td><td>@ViewBag.FullCountAuthorChoice</td></tr>
+    <tr><td><b>Общее количество запросов по названию:</b></td><td>@ViewBag.FullCountTitleChoice</td></tr>
+        <tr><td><b>Общее количество запросов по жанру:</b></td><td>@ViewBag.FullCountGenreChoice</td></tr>
+        <tr><td><b>Общее количество запросов по наличию изображеия:</b></td><td>@ViewBag.FullCountImageChoice</td></tr>
+</table>

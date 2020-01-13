@@ -148,12 +148,17 @@
     <Compile Include="Controllers\HomeController.cs" />
     <Compile Include="Entities\Genres.cs" />
     <Compile Include="Entities\Image.cs" />
+    <Compile Include="Entities\Statistic.cs" />
     <Compile Include="Global.asax.cs">
       <DependentUpon>Global.asax</DependentUpon>
     </Compile>
     <Compile Include="Migrations\202001081551458_AddImageTable.cs" />
     <Compile Include="Migrations\202001081551458_AddImageTable.designer.cs">
       <DependentUpon>202001081551458_AddImageTable.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Migrations\202001121423524_AddStatistic.cs" />
+    <Compile Include="Migrations\202001121423524_AddStatistic.designer.cs">
+      <DependentUpon>202001121423524_AddStatistic.cs</DependentUpon>
     </Compile>
     <Compile Include="Models\Model1.cs" />
     <Compile Include="Migrations\201912151452139_First.cs" />
@@ -374,6 +379,7 @@
     <Content Include="Views\OrderBook\Partial\_OrderPartialView.cshtml" />
     <Content Include="Views\Author\Partial\_AuthorPartialView.cshtml" />
     <Content Include="Views\Book\SurveyPage.cshtml" />
+    <Content Include="Views\Book\StatisticReport.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />
@@ -409,6 +415,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Migrations\202001081551458_AddImageTable.resx">
       <DependentUpon>202001081551458_AddImageTable.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\202001121423524_AddStatistic.resx">
+      <DependentUpon>202001121423524_AddStatistic.cs</DependentUpon>
     </EmbeddedResource>
   </ItemGroup>
   <PropertyGroup>

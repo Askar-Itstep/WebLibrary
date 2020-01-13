@@ -6,8 +6,7 @@
     List<Genres> genres = ViewBag.GenreList;
 }
 <script>
-    $(document).ready(function () {
-        
+    $(document).ready(function () {        
         //------send to Book/Survey-------------------
         $('#surveyDiv').hide();
         var myForm = document.forms[0];
@@ -26,28 +25,26 @@
                     $('input[type=submit]').attr('disabled', false);
                     $('#surveyDiv').show();
                     var obj = JSON.parse(data);
-                    $(obj).each(function (i, item) {
-                        var author = item[0]["Authors"]["LastName"];
-                        $('#author').html(author)
-                        var genre = item[0]["Genres"]["Name"];
-                        $('#genre').html(genre);                            
-                        var title = item[0]["Title"];
-                        $('#title').html(title)
-                        var price = item[0]["Price"];
-                        $('#price').html(price)
-                        var pages = item[0]["Pages"];
-                        $('#pages').html(pages)
-                        
-                        var image = item[1];
-                        //console.log(image)
+                    if ($(obj).length > 0) {
+                        $(obj).each(function (i, item) {
+                            var author = item[0]["Authors"]["LastName"];
+                            $('#author').html(author)
+                            var genre = item[0]["Genres"]["Name"];
+                            $('#genre').html(genre);
+                            var title = item[0]["Title"];
+                            $('#title').html(title)
+                            var price = item[0]["Price"];
+                            $('#price').html(price)
+                            var pages = item[0]["Pages"];
+                            $('#pages').html(pages)
 
-                        $('#img').html("<img style='width:80px; height:60px;' src=\"data:image/jpeg;base64," + image + "\" />")
-
-                        console.log(author)
-                    });
-                    
-                    
-
+                            var image = item[1];
+                            $('#img').html("<img style='width:80px; height:60px;' src=\"data:image/jpeg;base64," + image + "\" />")
+                        });
+                    }
+                    else {
+                        alert("Извините. У нас такой книги нет")
+                    }                    
                 },
                 error: function (xhr, error) {
                     alert(xhr.status + "; " + error)
