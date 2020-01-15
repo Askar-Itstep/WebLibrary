@@ -388,6 +388,7 @@
     <Content Include="Views\Author\Partial\_AuthorPartialView.cshtml" />
     <Content Include="Views\Book\SurveyPage.cshtml" />
     <Content Include="Views\Book\StatisticReport.cshtml" />
+    <Content Include="Views\Author\Details.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />

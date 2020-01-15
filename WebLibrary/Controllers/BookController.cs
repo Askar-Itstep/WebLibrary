@@ -136,7 +136,7 @@ namespace WebLibrary.Controllers
             ViewBag.AuthorList = new SelectList(authorList.OrderBy(a => a.LastName), "Id", "LastName");
             ViewBag.GenreList = unitOfWork.Genres.GetAll().ToList();//db.Genres.ToList();
             return View();
-          
+
         }
 
         [HttpPost]
@@ -153,17 +153,20 @@ namespace WebLibrary.Controllers
                 HandlerForm(statistic, ref authorId, ref title, ref genreId, ref isImageString, ref isImage);
 
                 //----------------Seach------------------------                  
-               
-                    Statistics = unitOfWork.Statistics.GetAll().ToList(); //db.Statistics.ToList();
-                                                                          //Statistics.Add(statistic);
-                    unitOfWork.Statistics.Create(statistic);
-                    unitOfWork.Statistics.Save();                       //db.SaveChanges();
-                    ArrayList bigList = GetRequestBooks(authorId, title, genreId, isImage);
-                    var data = JsonConvert.SerializeObject(bigList);   //
-                    return new JsonResult { Data = data, JsonRequestBehavior = JsonRequestBehavior.AllowGet,
-                                             MaxJsonLength = 2147483644
-                    };
-               
+
+                Statistics = unitOfWork.Statistics.GetAll().ToList(); //db.Statistics.ToList();
+                                                                      //Statistics.Add(statistic);
+                unitOfWork.Statistics.Create(statistic);
+                unitOfWork.Statistics.Save();                       //db.SaveChanges();
+                ArrayList bigList = GetRequestBooks(authorId, title, genreId, isImage);
+                var data = JsonConvert.SerializeObject(bigList);   //
+                return new JsonResult
+                {
+                    Data = data,
+                    JsonRequestBehavior = JsonRequestBehavior.AllowGet,
+                    MaxJsonLength = 2147483644
+                };
+
             }
             return View();
         }
@@ -203,10 +206,10 @@ namespace WebLibrary.Controllers
             }
         }
 
-        private  ArrayList GetRequestBooks(int authorId, string title, int genreId, bool isImage)
+        private ArrayList GetRequestBooks(int authorId, string title, int genreId, bool isImage)
         {
             List<Books> books = unitOfWork.Books.Include(nameof(Authors)).Include(nameof(Genres)).Include(nameof(Images)).ToList();
-                                    
+
             if (authorId != 0)//1)all books for author
                 books = books.Where(b => b.AuthorsId == authorId).ToList();
 
@@ -233,29 +236,27 @@ namespace WebLibrary.Controllers
 
         public ActionResult StatisticReport()
         {
-            using (Model1 db = new Model1())
-            {
-                var fullStatistic = db.Statistics.ToList();
-                var fullCountAuthorChoice = db.Statistics.Sum(s => s.CountAuthorChoice);
-                var fullCountTitleChoice = db.Statistics.Sum(s => s.CountTitleChoice);
-                var fullCountGenreChoice = db.Statistics.Sum(s => s.CountGenreChoice);
-                var fullCountImageChoice = db.Statistics.Sum(s => s.CountIsImageChoice);
+            var fullStatistic = unitOfWork.Statistics.GetAll();//db.Statistics.ToList();
+            var fullCountAuthorChoice = unitOfWork.Statistics.GetAll().Sum(s => s.CountAuthorChoice);
+            var fullCountTitleChoice = unitOfWork.Statistics.GetAll().Sum(s => s.CountTitleChoice);
+            var fullCountGenreChoice = unitOfWork.Statistics.GetAll().Sum(s => s.CountGenreChoice);
+            var fullCountImageChoice = unitOfWork.Statistics.GetAll().Sum(s => s.CountIsImageChoice);
 
-                ViewBag.FullCountAuthorChoice = fullCountAuthorChoice;
-                ViewBag.FullCountTitleChoice = fullCountTitleChoice;
-                ViewBag.FullCountGenreChoice = fullCountGenreChoice;
-                ViewBag.FullCountImageChoice = fullCountImageChoice;
-                List<Tuple<int, string>> tuples = new List<Tuple<int, string>> {
+            ViewBag.FullCountAuthorChoice = fullCountAuthorChoice;
+            ViewBag.FullCountTitleChoice = fullCountTitleChoice;
+            ViewBag.FullCountGenreChoice = fullCountGenreChoice;
+            ViewBag.FullCountImageChoice = fullCountImageChoice;
+            List<Tuple<int, string>> tuples = new List<Tuple<int, string>> {
                     new Tuple<int, string>(fullCountAuthorChoice, "AuthorChoice"),
                     new Tuple<int, string>(fullCountTitleChoice, "AuthorChoice"),
                     new Tuple<int, string>(fullCountGenreChoice, "GenreChoice"),
                     new Tuple<int, string>(fullCountImageChoice, "ImageChoice")
                 };
-                var orderedTuples = tuples.OrderByDescending(t => t.Item1).ToList();
-                ViewBag.MaxPop = orderedTuples[0].Item2;
-                ViewBag.MinPop = orderedTuples[3].Item2;
-                return View(fullStatistic);
-            }
+            var orderedTuples = tuples.OrderByDescending(t => t.Item1).ToList();
+            ViewBag.MaxPop = orderedTuples[0].Item2;    //после сортировки 1 и последн.-это..
+            ViewBag.MinPop = orderedTuples[3].Item2;
+            return View(fullStatistic.ToList());
+
         }
         //============================== Edit ========================================
         [HttpGet]
@@ -264,15 +265,13 @@ namespace WebLibrary.Controllers
             if (id == null)
                 return HttpNotFound();
 
-            using (Model1 db = new Model1())
-            {
-                Books book = db.Books.Find(id);
-                ViewBag.AuthorList = new SelectList(db.Authors.ToList(), "Id", "LastName");
-                ViewBag.GenreList = new SelectList(db.Genres.ToList(), "Id", "Name");
-                ViewBag.ImageBook = db.Images.Where(i => i.Id == book.ImagesId).FirstOrDefault();
-                ViewBag.Images = new SelectList(db.Images.ToList(), "Id", "FileName");
-                return View(book);
-            }
+            Books book = unitOfWork.Books.GetById(id);  //db.Books.Find(id);
+            ViewBag.AuthorList = new SelectList(unitOfWork.Authors.GetAll().ToList(), "Id", "LastName");
+            ViewBag.GenreList = new SelectList(unitOfWork.Genres.GetAll().ToList(), "Id", "Name");
+            ViewBag.ImageBook = unitOfWork.Images.GetAll().Where(i => i.Id == book.ImagesId).FirstOrDefault();
+            ViewBag.Images = new SelectList(unitOfWork.Images.GetAll().ToList(), "Id", "FileName");
+            return View(book);
+
         }
 
         [HttpGet]
@@ -281,26 +280,22 @@ namespace WebLibrary.Controllers
             if (id == null)
                 return HttpNotFound();
 
-            using (Model1 db = new Model1())
-            {
-                var res = db.Images.Find(id);
-                var data = Convert.ToBase64String(res.ImageData);
-                return new JsonResult { Data = data, JsonRequestBehavior = JsonRequestBehavior.AllowGet };
-            }
+            var res = unitOfWork.Images.GetById(id);
+            var data = Convert.ToBase64String(res.ImageData);
+            return new JsonResult { Data = data, JsonRequestBehavior = JsonRequestBehavior.AllowGet };
+
         }
 
         [HttpPost]
         public ActionResult Edit(Books book)
         {
-            using (Model1 db = new Model1())
+            if (ModelState.IsValid)
             {
-                if (ModelState.IsValid)
-                {
-                    db.Entry(book).State = EntityState.Modified;
-                    db.SaveChanges();
-                }
-                else return View(book);
+                unitOfWork.Books.Update(book);
+                unitOfWork.Books.Save();
             }
+            else return View(book);
+            
             return RedirectToAction("Index");
         }
         //=======================Delete=================================
@@ -310,11 +305,9 @@ namespace WebLibrary.Controllers
             if (id == null)
                 return HttpNotFound();
 
-            using (Model1 db = new Model1())
-            {
-                Books book = db.Books.Find(id);
+                Books book = unitOfWork.Books.GetById(id);
                 return View(book);
-            }
+           
         }
 
         [HttpPost]
@@ -323,12 +316,10 @@ namespace WebLibrary.Controllers
             if (book == null)
                 return HttpNotFound();
 
-            using (Model1 db = new Model1())
-            {
-                //db.Books.Remove(book);    //при аннот. - ошибка?
-                db.Entry(book).State = EntityState.Deleted;
-                db.SaveChanges();
-            }
+            unitOfWork.Books.Update(book);
+            unitOfWork.Books.Save();
+
+
             return RedirectToAction("Index");
         }
     }

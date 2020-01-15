@@ -5,19 +5,22 @@ using System.Data.Entity;
 using System.Linq;
 using System.Web;
 using System.Web.Mvc;
+using WebLibrary.Repository;
 
 namespace WebLibrary.Controllers
 {
     public class AuthorController : Controller
     {
+        private UnitOfWork unitOfWork;
+        public AuthorController()
+        {
+            unitOfWork = new UnitOfWork();
+        }
         public ActionResult Index()
         {
-            using (Model1 db = new Model1())
-            {
-                var authors = db.Authors.ToList();
+            var authors = unitOfWork.Authors.GetAll().ToList();
 
-                return View(authors);
-            }
+            return View(authors);
         }
 
         [HttpGet]
@@ -25,16 +28,14 @@ namespace WebLibrary.Controllers
         {
             var firstName = Request["FirstName"];
             var lastName = Request["LastName"];
-            using (Model1 db = new Model1())
+
+            if (firstName != null && lastName != null)
             {
-                if(firstName != null && lastName != null)
-                {
-                    db.Authors.Add(new Authors { FirstName = firstName, LastName = lastName });
-                    db.SaveChanges();
-                    return PartialView("Partial/_AuthorPartialView", db.Authors.ToList());
-                }
+                unitOfWork.Authors.Create(new Authors { FirstName = firstName, LastName = lastName });
+                unitOfWork.Authors.Save();
+                return PartialView("Partial/_AuthorPartialView", unitOfWork.Authors.GetAll().ToList());
             }
-                return PartialView("Partial/_CreatePartialView"); ;
+            return PartialView("Partial/_CreatePartialView"); ;
         }
 
         //[HttpPost]        //уже не исп-ся (переопред. Ajax.BeginForm из-за двойной отправки)
@@ -53,9 +54,12 @@ namespace WebLibrary.Controllers
 
         //}
 
-        public ActionResult Details()
+        public ActionResult Details(int? id)
         {
-            return new HttpStatusCodeResult(403);
+            if (id == null)
+                return new HttpStatusCodeResult(403);
+            var author = unitOfWork.Authors.GetById(id);
+            return View(author);
         }
 
         [HttpGet]
@@ -63,49 +67,51 @@ namespace WebLibrary.Controllers
         {
             if (id == null)
                 return HttpNotFound();
-            using (Model1 db = new Model1())
+
+            Authors author = unitOfWork.Authors.GetById(id);
+            if (author != null)
             {
-                Authors author = db.Authors.Find(id);
-                if (author != null)
+                ViewBag.MsgError = "Yes, author is found!";
+                return new JsonResult
                 {
-                    ViewBag.MsgError = "Yes, author is found!";
-                    return new JsonResult {
-                        Data = new ArrayList { author, ViewBag.MsgError },
-                        JsonRequestBehavior = JsonRequestBehavior.AllowGet
-                    };
-                }
-                else
-                {
-                    ViewBag.MsgError = "No, author not found!";
-                    return PartialView("Partial/AuthorPartialView", db.Authors.ToList());
-                }
+                    Data = new ArrayList { author, ViewBag.MsgError },
+                    JsonRequestBehavior = JsonRequestBehavior.AllowGet
+                };
             }
+            else
+            {
+                ViewBag.MsgError = "No, author not found!";
+                return PartialView("Partial/AuthorPartialView", unitOfWork.Authors.GetAll().ToList());
+            }
+
         }
         [HttpPost]
         public ActionResult Edit(Authors author)
         {
             if (author == null)
                 return HttpNotFound();
-            using (Model1 db = new Model1())
-            {
-                db.Entry(author).State = EntityState.Modified;
-                db.SaveChanges();
-                return RedirectToAction("Index");
-            }
+
+            unitOfWork.Authors.Update(author);
+            unitOfWork.Authors.Save();
+            return RedirectToAction("Index");
+
         }
         public ActionResult Delete(int? id) //сокращ. метод
         {
             if (id == null)
                 return HttpNotFound();
 
-            using (Model1 db = new Model1())
+            Model1 db = new Model1();
+            Authors author = unitOfWork.Authors.GetById(id);
+            List<Books> books = unitOfWork.Books.GetAll().Where(b => b.AuthorsId == author.Id).ToList();
+            for(int i =0; i < books.Count(); i++)
             {
-                Authors author = db.Authors.Find(id);
-                List<Books> books = db.Books.Where(b => b.AuthorsId == id).ToList();
-                db.Books.RemoveRange(books);
-                db.Authors.Remove(author);
-                db.SaveChanges();
+                unitOfWork.Books.Delete(books[i].Id);
             }
+            
+            unitOfWork.Authors.Delete(author.Id); 
+            unitOfWork.Authors.Save(); 
+
             return RedirectToAction("Index");
         }
     }

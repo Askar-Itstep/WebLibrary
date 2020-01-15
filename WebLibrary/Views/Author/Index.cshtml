@@ -8,7 +8,7 @@
 }
 <script>
     $(document).ready(function () {
-        //-----Create-----------------
+        //------------------Create-----------------
         $('#linkAuthorCreate').on('click', function (event) {
             event.preventDefault();
             console.log("open modal");
@@ -16,7 +16,7 @@
             $('#exampleModalScrollable').modal('show');
             //------исправл. двойной отправки из Create\Ajax.BeginForm-----------
             var myForm = document.forms[0];
-            $('input #createSubmit]').on('click', function (e) {
+            $('#createSubmit').on('click', function (e) {
                 e.preventDefault();
                 $('#exampleModalScrollable').modal('hide');
                 $('input[type=submit]').attr("disabled", "disabled");
