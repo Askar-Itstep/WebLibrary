@@ -131,14 +131,12 @@ namespace WebLibrary.Controllers
         [HttpGet]
         public ActionResult SurveyPage()
         {
-            using (Model1 db = new Model1())
-            {
-                var authorList = unitOfWork.Authors.GetAll().ToList();//db.Authors.ToList();
-                authorList.Add(new Authors { LastName = ""});  //в select верх д/н быть пустой
-                ViewBag.AuthorList = new SelectList(authorList.OrderBy(a=>a.LastName), "Id", "LastName");
-                ViewBag.GenreList = unitOfWork.Genres.GetAll().ToList();//db.Genres.ToList();
-                return View();
-            }
+            var authorList = unitOfWork.Authors.GetAll().ToList();//db.Authors.ToList();
+            authorList.Add(new Authors { LastName = "" });  //в select верх д/н быть пустой
+            ViewBag.AuthorList = new SelectList(authorList.OrderBy(a => a.LastName), "Id", "LastName");
+            ViewBag.GenreList = unitOfWork.Genres.GetAll().ToList();//db.Genres.ToList();
+            return View();
+          
         }
 
         [HttpPost]
@@ -155,15 +153,17 @@ namespace WebLibrary.Controllers
                 HandlerForm(statistic, ref authorId, ref title, ref genreId, ref isImageString, ref isImage);
 
                 //----------------Seach------------------------                  
-                using (Model1 db = new Model1())
-                {
-                    Statistics = db.Statistics.ToList();
-                    Statistics.Add(statistic);
-                    db.SaveChanges();
-                    ArrayList bigList = GetRequestBooks(authorId, title, genreId, isImage, db);
+               
+                    Statistics = unitOfWork.Statistics.GetAll().ToList(); //db.Statistics.ToList();
+                                                                          //Statistics.Add(statistic);
+                    unitOfWork.Statistics.Create(statistic);
+                    unitOfWork.Statistics.Save();                       //db.SaveChanges();
+                    ArrayList bigList = GetRequestBooks(authorId, title, genreId, isImage);
                     var data = JsonConvert.SerializeObject(bigList);   //
-                    return new JsonResult { Data = data, JsonRequestBehavior = JsonRequestBehavior.AllowGet };
-                }
+                    return new JsonResult { Data = data, JsonRequestBehavior = JsonRequestBehavior.AllowGet,
+                                             MaxJsonLength = 2147483644
+                    };
+               
             }
             return View();
         }
@@ -174,7 +174,7 @@ namespace WebLibrary.Controllers
                 var value = Request.Form[item];
                 if (value != null && value != "")
                 {
-                    if (item == "AuthorsId")
+                    if (item == "AuthorsId" && value != "0")
                     {
                         statistic.CountAuthorChoice++;
                         authorId = int.Parse(value);
@@ -203,10 +203,10 @@ namespace WebLibrary.Controllers
             }
         }
 
-        private static ArrayList GetRequestBooks(int authorId, string title, int genreId, bool isImage, Model1 db)   
+        private  ArrayList GetRequestBooks(int authorId, string title, int genreId, bool isImage)
         {
-            List<Books> books = db.Books.Include(nameof(Authors)).Include(nameof(Genres)).Include(nameof(Images))
-                                    .ToList();
+            List<Books> books = unitOfWork.Books.Include(nameof(Authors)).Include(nameof(Genres)).Include(nameof(Images)).ToList();
+                                    
             if (authorId != 0)//1)all books for author
                 books = books.Where(b => b.AuthorsId == authorId).ToList();
 
@@ -233,7 +233,7 @@ namespace WebLibrary.Controllers
 
         public ActionResult StatisticReport()
         {
-            using(Model1 db = new Model1())
+            using (Model1 db = new Model1())
             {
                 var fullStatistic = db.Statistics.ToList();
                 var fullCountAuthorChoice = db.Statistics.Sum(s => s.CountAuthorChoice);
@@ -255,11 +255,11 @@ namespace WebLibrary.Controllers
                 ViewBag.MaxPop = orderedTuples[0].Item2;
                 ViewBag.MinPop = orderedTuples[3].Item2;
                 return View(fullStatistic);
-            }            
+            }
         }
         //============================== Edit ========================================
         [HttpGet]
-        public ActionResult Edit(int? id)   
+        public ActionResult Edit(int? id)
         {
             if (id == null)
                 return HttpNotFound();
@@ -280,13 +280,13 @@ namespace WebLibrary.Controllers
         {
             if (id == null)
                 return HttpNotFound();
-            
-            using(Model1 db = new Model1())
+
+            using (Model1 db = new Model1())
             {
                 var res = db.Images.Find(id);
                 var data = Convert.ToBase64String(res.ImageData);
                 return new JsonResult { Data = data, JsonRequestBehavior = JsonRequestBehavior.AllowGet };
-            }           
+            }
         }
 
         [HttpPost]

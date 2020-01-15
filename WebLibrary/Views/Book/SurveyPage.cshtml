@@ -26,19 +26,21 @@
                     $('#surveyDiv').show();
                     //console.log(data)
                     var obj = JSON.parse(data);
-                    //console.log(obj)
+                    console.log(obj)
                     if ($(obj).length > 0) {
                         $(obj).each(function (i, item) {
-                            console.log("!!!!")
                             var newRaw = $('<tr></tr>');
+
                             var title = item["Item1"]["Title"];
                             var td3 = $('<td></td>')
                             $(td3).html(title)
                             $(newRaw).append(td3)
+
                             var author = item["Item1"]["Authors"]["LastName"];
                             var td1 = $('<td></td>')
                             $(td1).html(author)
                             $(newRaw).append(td1)
+
                             var genre = item["Item1"]["Genres"]["Name"];
                             var td2 = $('<td></td>')
                             $(td2).html(genre)
