@@ -2,7 +2,7 @@
 
 namespace WebLibrary
 {
-    public class Image
+    public class Images
     {
         [Key]
         public int Id { get; set; }

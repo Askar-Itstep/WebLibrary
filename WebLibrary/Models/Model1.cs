@@ -18,7 +18,7 @@ namespace WebLibrary
         public virtual DbSet<Users> Users { get; set; }
         public virtual DbSet<Genres> Genres { get; set; }
         public virtual DbSet<OrderBooks> OrderBooks { get; set; }
-        public virtual DbSet<Image> Images { get; set; }
+        public virtual DbSet<Images> Images { get; set; }
         public virtual DbSet<Statistic> Statistics { get; set; }
 
         protected override void OnModelCreating(DbModelBuilder modelBuilder)

@@ -18,6 +18,9 @@
                     userId: id
                 },
                 success: function (data) {
+                    var res = JSON.parse(data)
+                    console.log(res)
+                   
                     $('#divPartial').append(function () {
                         var caption = '<h4>Книги пользователя</h4>';
                         var table = document.createElement('table');
@@ -25,7 +28,7 @@
                         $(table).addClass('table table-striped')
                         var trHead = '<tr><th>Title</th><th>Author</th><th>Genre</th><th>Price</th><th>Pages</th></tr>'
                         $(table).append(trHead);
-                        $(data).each(function (indx, item) {    //может быть и 5 книг
+                        $(res).each(function (indx, item) {    //может быть несколько книг!
                             var trCurr = '<tr><td>' + item.Title + '</td><td>' + item.Authors.LastName + '</td><td>' + item.Genres.Name + '</td><td>' +
                                 + item.Price + '</td><td>' + item.Pages + '</td></tr>';
                             $(table).append(trCurr)
@@ -33,10 +36,10 @@
                         return table;
                     });
                 },
-                error: function (data) {
+                error: function (xhr, status) {
 
-                    console.log(data);
-                    alert("failed")
+                    console.log(status);
+                    alert(xhr.statusText)
                 }
             });
         });

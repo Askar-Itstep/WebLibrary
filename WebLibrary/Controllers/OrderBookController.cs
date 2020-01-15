@@ -67,15 +67,17 @@ namespace WebLibrary.Controllers
                 return PartialView("Partial/_CreatePartialView");
             }
         }
+        [HttpGet]
         public ActionResult GetTop5(int? userId)    //вызов из index/ajax
         {
             using (Model1 db = new Model1())
             {
                 List<Books> bookList = GetBooks(userId);
-
+                //bookList.ForEach(b => b.Images == null);
+                var data = JsonConvert.SerializeObject(bookList);
                 return new JsonResult
                 {
-                    Data = bookList,
+                    Data = data,
                     JsonRequestBehavior = JsonRequestBehavior.AllowGet
                 };
             }
@@ -110,7 +112,7 @@ namespace WebLibrary.Controllers
                 orderBooks.ForEach(order =>
                 {
                     bookList.Add(db.Books.Include(nameof(Authors)).Include(nameof(Genres))  //Lazy-load !
-                                            .Where(b => b.Id == order.BooksId).FirstOrDefault());
+                                         .Include(nameof(Images)).Where(b => b.Id == order.BooksId).FirstOrDefault());
                 });
                 return bookList;
             }

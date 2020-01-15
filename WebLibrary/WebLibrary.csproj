@@ -147,7 +147,7 @@
     <Compile Include="Controllers\BookController.cs" />
     <Compile Include="Controllers\HomeController.cs" />
     <Compile Include="Entities\Genres.cs" />
-    <Compile Include="Entities\Image.cs" />
+    <Compile Include="Entities\Images.cs" />
     <Compile Include="Entities\Statistic.cs" />
     <Compile Include="Global.asax.cs">
       <DependentUpon>Global.asax</DependentUpon>
@@ -159,6 +159,10 @@
     <Compile Include="Migrations\202001121423524_AddStatistic.cs" />
     <Compile Include="Migrations\202001121423524_AddStatistic.designer.cs">
       <DependentUpon>202001121423524_AddStatistic.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Migrations\202001140550218_AltBookNaviImages.cs" />
+    <Compile Include="Migrations\202001140550218_AltBookNaviImages.designer.cs">
+      <DependentUpon>202001140550218_AltBookNaviImages.cs</DependentUpon>
     </Compile>
     <Compile Include="Models\Model1.cs" />
     <Compile Include="Migrations\201912151452139_First.cs" />
@@ -189,6 +193,10 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Entities\OrderBooks.cs" />
     <Compile Include="Entities\Users.cs" />
+    <Compile Include="Repository\BaseRepository.cs" />
+    <Compile Include="Repository\IRepository.cs" />
+    <Compile Include="Repository\IUnitOfWork.cs" />
+    <Compile Include="Repository\UnitOfWork.cs" />
     <Compile Include="Utils\MyHelpers.cs" />
   </ItemGroup>
   <ItemGroup>
@@ -418,6 +426,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Migrations\202001121423524_AddStatistic.resx">
       <DependentUpon>202001121423524_AddStatistic.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\202001140550218_AltBookNaviImages.resx">
+      <DependentUpon>202001140550218_AltBookNaviImages.cs</DependentUpon>
     </EmbeddedResource>
   </ItemGroup>
   <PropertyGroup>

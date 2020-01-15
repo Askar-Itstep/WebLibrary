@@ -11,35 +11,56 @@
         $('#surveyDiv').hide();
         var myForm = document.forms[0];
         $('input[type=submit]').on('click', function (e) {
-            $(this).attr('disabled', true);
+            $(this).attr('disabled', 'disabled');
             $(myForm).triggerHandler('submit');
         });
         $(myForm).on('submit', function (e) {
             e.preventDefault();
             $.ajax({
-                dataType: "json",
+                //dataType: "json",
                 method: "POST",
                 url: "/Book/SurveyPage",
                 data: $(myForm).serialize(),
                 success: function (data) {
                     $('input[type=submit]').attr('disabled', false);
                     $('#surveyDiv').show();
+                    //console.log(data)
                     var obj = JSON.parse(data);
+                    //console.log(obj)
                     if ($(obj).length > 0) {
                         $(obj).each(function (i, item) {
-                            var author = item[0]["Authors"]["LastName"];
-                            $('#author').html(author)
-                            var genre = item[0]["Genres"]["Name"];
-                            $('#genre').html(genre);
-                            var title = item[0]["Title"];
-                            $('#title').html(title)
-                            var price = item[0]["Price"];
-                            $('#price').html(price)
-                            var pages = item[0]["Pages"];
-                            $('#pages').html(pages)
+                            console.log("!!!!")
+                            var newRaw = $('<tr></tr>');
+                            var title = item["Item1"]["Title"];
+                            var td3 = $('<td></td>')
+                            $(td3).html(title)
+                            $(newRaw).append(td3)
+                            var author = item["Item1"]["Authors"]["LastName"];
+                            var td1 = $('<td></td>')
+                            $(td1).html(author)
+                            $(newRaw).append(td1)
+                            var genre = item["Item1"]["Genres"]["Name"];
+                            var td2 = $('<td></td>')
+                            $(td2).html(genre)
+                            $(newRaw).append(td2)
 
-                            var image = item[1];
-                            $('#img').html("<img style='width:80px; height:60px;' src=\"data:image/jpeg;base64," + image + "\" />")
+                            var image = item["Item2"];
+                            var td6 = $('<td></td>')
+                            $(td6).html("<img style='width:80px; height:60px;' src=\"data:image/jpeg;base64," + image + "\" />")
+                            $(newRaw).append(td6)
+
+                            var price = item["Item1"]["Price"];
+                            var td4 = $('<td></td>')
+                            $(td4).html(price)
+                            $(newRaw).append(td4)
+
+                            var pages = item["Item1"]["Pages"];
+                            var td5 = $('<td></td>')
+                            $(td5).html(pages)
+                            $(newRaw).append(td5)
+
+                            
+                            $('#tbody').append(newRaw)
                         });
                     }
                     else {
@@ -109,14 +130,7 @@
         </tr>
         
     </thead>
-    <tbody>
-        <tr>
-            <td id="title"></td>
-            <td id="author"></td>
-            <td id="genre"></td>
-            <td id="img"></td>
-            <td id="price"></td>
-            <td id="pages"></td>
-        </tr>
+    <tbody id="tbody">
+        
     </tbody>
 </table>

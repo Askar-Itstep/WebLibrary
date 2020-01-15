@@ -9,6 +9,7 @@ using System.Threading.Tasks;
 using System.Web;
 using System.Web.Mvc;
 using WebLibrary.Entities;
+using WebLibrary.Repository;
 
 namespace WebLibrary.Controllers
 {
@@ -17,6 +18,12 @@ namespace WebLibrary.Controllers
     {
         public static List<Users> UserList { get; set; }
         public static List<Statistic> Statistics { get; set; }
+
+        public UnitOfWork unitOfWork;
+        public BookController()
+        {
+            unitOfWork = new UnitOfWork();
+        }
         //========================= ActionMethods ======================================
 
         public ActionResult UsersReadThisBook(int? id)//замена -для возвр. PartView
@@ -25,10 +32,10 @@ namespace WebLibrary.Controllers
             using (Model1 db = new Model1())
             {
 
-                var orders = db.OrderBooks            //выбрать все заказы этой книги
-                    .Include(o => o.Users)
-                    .Include(o => o.Books).Where(o => o.BooksId == id).ToList();
-
+                //var orders = db.OrderBooks            //выбрать все заказы этой книги
+                //    //.Include(o => o.Users).Include(o => o.Books)
+                //    .Where(o => o.BooksId == id).ToList();
+                var orders = unitOfWork.OrderBooks.GetAll().Where(o => o.BooksId == id);
                 UserList = orders.Select(o => o.Users).ToList();    //а из них пользователей
 
                 ViewBag.Book = db.Books.Find(id).Title;
@@ -40,10 +47,8 @@ namespace WebLibrary.Controllers
         {
             using (Model1 db = new Model1())
             {
-                var books = db.Books
-                    .Include(b => b.Authors).Include(b => b.Genres).Include(b => b.Images)
-                    .ToList();
-
+                //var books = db.Books.Include(b => b.Authors).Include(b => b.Genres).Include(b => b.Images).ToList();
+                var books = unitOfWork.Books.Include("Authors", "Genres", "Images").ToList();
                 return View(books);
             }
         }
@@ -53,8 +58,8 @@ namespace WebLibrary.Controllers
         {
             using (Model1 db = new Model1())
             {
-                var authorList = db.Authors.ToList();
-                var genreList = db.Genres.ToList();
+                var authorList = unitOfWork.Authors.GetAll().ToList();//db.Authors.ToList();
+                var genreList = unitOfWork.Genres.GetAll().ToList();//db.Genres.ToList();
                 var arrayList = new ArrayList(authorList);
                 arrayList.AddRange(genreList);
 
@@ -88,36 +93,39 @@ namespace WebLibrary.Controllers
         public async Task<ActionResult> Create(Books book, HttpPostedFileBase upload)
         {
             var myfile = Request.Files;
-            using (Model1 db = new Model1())
+            //using (Model1 db = new Model1())
+            //{
+            Images image = new Images();
+            Images imageBase = new Images();
+            if (ModelState.IsValid)
             {
-                Image image = new Image();
-                Image imageBase = new Image();
-                if (ModelState.IsValid)
+                if (upload != null)
                 {
-                    if (upload != null)
+                    string filename = System.IO.Path.GetFileName(upload.FileName);
+                    //System.Diagnostics.Debug.WriteLine(filename);
+                    image.FileName = filename;
+                    byte[] myBytes = new byte[upload.ContentLength];
+                    upload.InputStream.Read(myBytes, 0, upload.ContentLength);
+                    image.ImageData = myBytes;
+                    //var temp = await db.Images.Where(i => i.FileName == image.FileName).ToListAsync();
+                    var temp = await unitOfWork.Images.GetAll().Where(i => i.FileName == image.FileName).ToListAsync();
+                    if (temp == null || temp.Count() == 0)  //если такого нет - сохранить
                     {
-                        string filename = System.IO.Path.GetFileName(upload.FileName);
-                        //System.Diagnostics.Debug.WriteLine(filename);
-                        image.FileName = filename;
-                        byte[] myBytes = new byte[upload.ContentLength];
-                        upload.InputStream.Read(myBytes, 0, upload.ContentLength);
-                        image.ImageData = myBytes;
-                        var temp = await db.Images.Where(i => i.FileName == image.FileName).ToListAsync();
-                        if (temp == null || temp.Count() == 0)
-                            db.Images.Add(image);
-                        db.SaveChanges();
-                        //var result = await Task.Factory.StartNew(() => db.SaveChanges());
-                        List<Image> imageBases = await db.Images.Where(i => i.FileName == image.FileName).ToListAsync();
-                        imageBase = imageBases[0];
-                        book.ImageId = imageBase.Id;
-                        System.Diagnostics.Debug.WriteLine(book.ImageId);
+                        unitOfWork.Images.Create(image);//db.Images.Add(image);
+                        unitOfWork.Images.Save();   //db.SaveChanges();
                     }
-                    db.Books.Add(book);
-                    db.SaveChanges();
-                    return new JsonResult { Data = "Данные записаны", JsonRequestBehavior = JsonRequestBehavior.AllowGet };
+                    //List<Images> imageBases = await db.Images.Where(i => i.FileName == image.FileName).ToListAsync();
+                    List<Images> imageBases = await unitOfWork.Images.GetAll().Where(i => i.FileName == image.FileName).ToListAsync();
+                    imageBase = imageBases[0];
+                    book.ImagesId = imageBase.Id;
+                    System.Diagnostics.Debug.WriteLine(book.ImagesId);
                 }
-                else return View(book);
+                unitOfWork.Books.Create(book);// db.Books.Add(book);
+                unitOfWork.Books.Save(); //db.SaveChanges();
+                return new JsonResult { Data = "Данные записаны", JsonRequestBehavior = JsonRequestBehavior.AllowGet };
             }
+            else return View(book);
+            //}
         }
         //================================== SurveyPage =======================================
         [HttpGet]
@@ -125,10 +133,10 @@ namespace WebLibrary.Controllers
         {
             using (Model1 db = new Model1())
             {
-                var authorList = db.Authors.ToList();
-                authorList.Add(new Authors());
-                ViewBag.AuthorList = new SelectList(authorList, "Id", "LastName");
-                ViewBag.GenreList = db.Genres.ToList();
+                var authorList = unitOfWork.Authors.GetAll().ToList();//db.Authors.ToList();
+                authorList.Add(new Authors { LastName = ""});  //в select верх д/н быть пустой
+                ViewBag.AuthorList = new SelectList(authorList.OrderBy(a=>a.LastName), "Id", "LastName");
+                ViewBag.GenreList = unitOfWork.Genres.GetAll().ToList();//db.Genres.ToList();
                 return View();
             }
         }
@@ -153,8 +161,8 @@ namespace WebLibrary.Controllers
                     Statistics.Add(statistic);
                     db.SaveChanges();
                     ArrayList bigList = GetRequestBooks(authorId, title, genreId, isImage, db);
-                    var data = JsonConvert.SerializeObject(bigList);
-                    return new JsonResult { Data = data, JsonRequestBehavior = JsonRequestBehavior.DenyGet };
+                    var data = JsonConvert.SerializeObject(bigList);   //
+                    return new JsonResult { Data = data, JsonRequestBehavior = JsonRequestBehavior.AllowGet };
                 }
             }
             return View();
@@ -195,9 +203,9 @@ namespace WebLibrary.Controllers
             }
         }
 
-        private static ArrayList GetRequestBooks(int authorId, string title, int genreId, bool isImage, Model1 db)
+        private static ArrayList GetRequestBooks(int authorId, string title, int genreId, bool isImage, Model1 db)   
         {
-            List<Books> books = db.Books.Include(nameof(Authors)).Include(nameof(Genres))
+            List<Books> books = db.Books.Include(nameof(Authors)).Include(nameof(Genres)).Include(nameof(Images))
                                     .ToList();
             if (authorId != 0)//1)all books for author
                 books = books.Where(b => b.AuthorsId == authorId).ToList();
@@ -209,16 +217,15 @@ namespace WebLibrary.Controllers
                 books = books.Where(b => b.GenresId == genreId).ToList();
 
             if (isImage == false)
-                books = books.Where(b => b.ImageId == 0).ToList();
+                books = books.Where(b => b.ImagesId == 0).ToList();
             //books.ForEach(b => System.Diagnostics.Debug.WriteLine(b.Title));
             ArrayList bigList = new ArrayList();
             books.ForEach(b =>
             {
                 var imgData = Convert.ToBase64String(b.Images.ImageData);
                 b.Images.ImageData = null;  //облегч. поклажи
-                ArrayList list = new ArrayList(books);
-                list.Add(imgData);
-                bigList.Add(list);
+                Tuple<Books, string> tuple = new Tuple<Books, string>(b, imgData);
+                bigList.Add(tuple);
             });
             return bigList;
         }
@@ -262,7 +269,7 @@ namespace WebLibrary.Controllers
                 Books book = db.Books.Find(id);
                 ViewBag.AuthorList = new SelectList(db.Authors.ToList(), "Id", "LastName");
                 ViewBag.GenreList = new SelectList(db.Genres.ToList(), "Id", "Name");
-                ViewBag.ImageBook = db.Images.Where(i => i.Id == book.ImageId).FirstOrDefault();
+                ViewBag.ImageBook = db.Images.Where(i => i.Id == book.ImagesId).FirstOrDefault();
                 ViewBag.Images = new SelectList(db.Images.ToList(), "Id", "FileName");
                 return View(book);
             }
