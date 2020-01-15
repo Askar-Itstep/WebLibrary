@@ -14,10 +14,10 @@
 @foreach (var item in Model) {
     <tr class="record" id="@item.UsersId">
         <td>
-            @Html.DisplayFor(modelItem => item.Books.Title)
+            @Html.DisplayFor(modelItem => @item.Books.Title)
         </td>
         <td>
-            @Html.DisplayFor(modelItem => item.Users.UserName)
+            @Html.DisplayFor(modelItem => @item.Users.UserName)
         </td>
         <td>
             @Html.ActionLink("Edit", "Edit", new { id=item.Id }) |

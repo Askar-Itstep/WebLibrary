@@ -4,19 +4,21 @@ using System.Data.Entity;
 using System.Linq;
 using System.Web;
 using System.Web.Mvc;
+using WebLibrary.Repository;
 
 namespace WebLibrary.Controllers
 {
     public class GenreController : Controller
     {
-        // GET: Genre
+        private UnitOfWork unitOfWork;
+        public GenreController()
+        {
+            unitOfWork = new UnitOfWork();
+        }
         public ActionResult Index()
         {
-            using(Model1 db = new Model1())
-            {
-                List<Genres> genres = db.Genres.ToList();
+                List<Genres> genres = unitOfWork.Genres.GetAll().ToList();
                 return View(genres);
-            }
         }
 
         [HttpGet]
@@ -30,16 +32,15 @@ namespace WebLibrary.Controllers
             if (genre == null)
                     return HttpNotFound();
 
-            using (Model1 db = new Model1())
-            {
+           
                 if (ModelState.IsValid)
                 {
-                    db.Genres.Add(genre);
-                    db.SaveChanges();
+                unitOfWork.Genres.Create(genre);
+                unitOfWork.Genres.Save();
                     return RedirectToAction("Index");
                 }
                 else return View(genre);
-            }
+            
         }
 
         [HttpGet]
@@ -47,13 +48,9 @@ namespace WebLibrary.Controllers
         {
             if (id == null)
                 return HttpNotFound();
-
-            using(Model1 db = new Model1())
-            {
-                Genres genre = db.Genres.Find(id);
-                return View(genre);
-            }
-            
+           
+                Genres genre = unitOfWork.Genres.GetById(id);
+                return View(genre);                       
         }
         [HttpPost]
         public ActionResult Edit(Genres genre)
@@ -64,12 +61,10 @@ namespace WebLibrary.Controllers
             {
                 if (ModelState.IsValid)
                 {
-                    int id = genre.Id;
-                    Genres genreOrigin = db.Genres.Find(id);
-                    db.Genres.Remove(genreOrigin);
-                    db.Genres.Add(genre);
                     //db.Entry(genre).State = EntityState.Modified; //или так
-                    db.SaveChanges();
+                    //db.SaveChanges();
+                    unitOfWork.Genres.Update(genre);
+                    unitOfWork.Genres.Save();
                 }
                 else return View(genre);
                 return RedirectToAction("Index");                
@@ -80,12 +75,11 @@ namespace WebLibrary.Controllers
         {
             if (id == 0)
                 return HttpNotFound();
-            using(Model1 db = new Model1())
-            {
-                Genres genre = db.Genres.Find(id);
-                db.Genres.Remove(genre);
-                db.SaveChanges();
-            }
+           
+                Genres genre = unitOfWork.Genres.GetById(id);//db.Genres.Find(id);
+            unitOfWork.Genres.Delete(genre.Id);
+            unitOfWork.Genres.Save();
+            
             return RedirectToAction("Index");
         }
     }

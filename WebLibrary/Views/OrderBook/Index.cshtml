@@ -67,7 +67,8 @@
                 url: "/OrderBook/Create/",
                 data: mydata,
                 success: function (data) {
-                    $('#AjaxOrderTable').html("").append(data)
+                    //console.log(data) //this is PartialView = html-document!
+                    $('#AjaxOrderTable').html("").append(data)  //можно и json->parse..
                 },
                 error: function (status, errorMsg) {
                     alert("Error!");

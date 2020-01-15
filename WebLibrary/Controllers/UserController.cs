@@ -4,20 +4,21 @@ using System.Data.Entity;
 using System.Linq;
 using System.Web;
 using System.Web.Mvc;
+using WebLibrary.Repository;
 
 namespace WebLibrary.Controllers
 {
     public class UserController : Controller
     {
-        // GET: User
+        private UnitOfWork unityOfWork;
+        public UserController()
+        {
+            unityOfWork = new UnitOfWork();
+        }
         public ActionResult Index()
         {
-            using(Model1 db = new Model1())
-            {
-                List<Users> users = db.Users.ToList();
-                return View(users);
-            }
-            
+            List<Users> users = unityOfWork.Users.GetAll().ToList();
+            return View(users);
         }
         [HttpGet]
         public ActionResult Create()
@@ -29,77 +30,65 @@ namespace WebLibrary.Controllers
         {
             if (user == null)
                 return HttpNotFound();
-            using(Model1 db = new Model1())
+
+            if (ModelState.IsValid)
             {
-                if (ModelState.IsValid)
-                {
-                    db.Users.Add(user);
-                    db.SaveChanges();
-                    return RedirectToAction("Index");
-                }
-                else
-                {
-                    return View(user);
-                }
-                
+                unityOfWork.Users.Create(user);
+                unityOfWork.Users.Save();
+                return RedirectToAction("Index");
             }
+            else
+                return View(user);
         }
         [HttpGet]
         public ActionResult Edit(int? id)
         {
             if (id == null)
                 return HttpNotFound();
-            using(Model1 db = new Model1())
-            {
-                Users user = db.Users.Find(id);
-                return View(user);
-            }
+
+            Users user = unityOfWork.Users.GetById(id);
+            return View(user);
+
         }
         [HttpPost]
         public ActionResult Edit(Users user)
         {
             if (user == null)
                 return HttpNotFound();
-            using(Model1 db = new Model1())
+
+            if (ModelState.IsValid)
             {
-                if (ModelState.IsValid)
-                {
-                    db.Entry(user).State = EntityState.Modified;
-                    db.SaveChanges();
-                    return RedirectToAction("Index");
-                }
-                else
-                    return View(user);
+                unityOfWork.Users.Update(user);
+                unityOfWork.Users.Save();
+                return RedirectToAction("Index");
             }
+            else
+                return View(user);
         }
+
         [HttpGet]
         public ActionResult Delete(int? id)
         {
             if (id == null)
                 return HttpNotFound();
-            using(Model1 db = new Model1())
-            {
-                Users user = db.Users.Find(id);
-                return View(user);
-            }
+            Users user = unityOfWork.Users.GetById(id);
+            return View(user);
         }
+
         [HttpPost]
         public ActionResult Delete(Users user)
         {
             if (user == null)
                 return HttpNotFound();
 
-            using (Model1 db = new Model1())
+            if (ModelState.IsValid)
             {
-                if (ModelState.IsValid)
-                {
-                    db.Entry(user).State = EntityState.Deleted;
-                    db.SaveChanges();
-                    return RedirectToAction("Index");
-                }
-                else
-                    return View(user);
+                unityOfWork.Users.Delete(user.Id);
+                unityOfWork.Users.Save();
+                return RedirectToAction("Index");
             }
+            else
+                return View(user);
         }
     }
 }
