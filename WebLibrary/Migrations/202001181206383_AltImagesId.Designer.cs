@@ -7,13 +7,13 @@ namespace WebLibrary.Migrations
     using System.Resources;
     
     [GeneratedCode("EntityFramework.Migrations", "6.4.0")]
-    public sealed partial class AltUser : IMigrationMetadata
+    public sealed partial class AltImagesId : IMigrationMetadata
     {
-        private readonly ResourceManager Resources = new ResourceManager(typeof(AltUser));
+        private readonly ResourceManager Resources = new ResourceManager(typeof(AltImagesId));
         
         string IMigrationMetadata.Id
         {
-            get { return "201912141553039_Alt-User"; }
+            get { return "202001181206383_AltImagesId"; }
         }
         
         string IMigrationMetadata.Source

@@ -1,22 +1,23 @@
 ﻿@model WebLibrary.Books
-
+@*--------------------------больше не используется!---------------------*@
 @{
     ViewBag.Title = "Edit";
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
-<script>//изм.изобр. на edit-page
+<script>
+    //изм.изобр. на edit-page
     $(document).ready(function () {
-        $('#selectImage').on('change', function (e) {
-            console.log();  
-            var imageId = $(this).val()
-            //$('img').load("/Book/PreEdit?data=" + $(this).val())
+        $('#selectImage').on('change', function (e) {   //now no action!
+            console.log();
+            var imageId = $(this).val();
+
             $.ajax({
                 type: "GET",
                 data: { id: imageId },
                 url: "/Book/PreEdit",
                 success: function (data) {
                     console.log(data)
-                    $('#imgDiv').html('<img style=\'width: 80px; height: 60px;\' src=\"data:image/jpeg;base64,'+data+ '"/>')
+                    $('#imgDiv').html('<img style=\'width: 80px; height: 60px;\' src=\"data:image/jpeg;base64,' + data + '"/>')
                 },
                 error: function (response, error) {
                     alert(response.responseText + " - " + error);
@@ -24,73 +25,114 @@
             });
         });
 
+        var myForm = document.forms[0];
+        $('input[type=submit').on('click', function (e) {
+            $(this).attr("disabled", "disabled");
+            $(myForm).triggerHandler('submit');
+        });
+        $(myForm).on('submit', function (e) {
+            var files = document.getElementById('customFile').files;
+            console.log(files)
+            if (window.FormData !== undefined) {
+                var data = new FormData(document.forms[0]);
+                console.log(data)
+                for (var x = 0; x < files.length; x++) {
+                    data.append("file" + x, files[x]);
+                }
+                $.ajax({
+                    type: "POST",
+                    url: "/Book/Edit",
+                    contentType: false,
+                    processData: false,
+                    data: data,
+                    success: function (result) {
+                        alert(result); //"Данные записаны!"
+                        $(location).attr('href', '/Book/Index');
+                    },
+                    error: function (xhr, status) {
+                        alert(status);
+                        $('input[type=submit').attr("disabled", "disabled");
+                    }
+                });
+            } else {
+                alert("Браузер не поддерживает загрузку файлов HTML5!");
+            }
+        });
+
+
     });
 </script>
 <h2>Edit</h2>
 
-@using (Html.BeginForm())
-{
+@using (Html.BeginForm()) {
     @Html.AntiForgeryToken()
 
-<div class="form-horizontal">
-    <h4>Books</h4>
-    <hr />
-    @Html.ValidationSummary(true, "", new { @class = "text-danger" })
-    @Html.HiddenFor(model => model.Id)
+    <div class="form-horizontal">
+        <h4>Books</h4>
+        <hr />
+        @Html.ValidationSummary(true, "", new { @class = "text-danger" })
+        @Html.HiddenFor(model => model.Id)
 
-    <div class="form-group">
-        @Html.LabelFor(model => model.Title, htmlAttributes: new { @class = "control-label col-md-2" })
-        <div class="col-md-10">
-            @Html.EditorFor(model => model.Title, new { htmlAttributes = new { @class = "form-control" } })
-            @Html.ValidationMessageFor(model => model.Title, "", new { @class = "text-danger" })
-        </div>
-    </div>
-
-    <div class="form-group">
-        @Html.LabelFor(model => model.Price, htmlAttributes: new { @class = "control-label col-md-2" })
-        <div class="col-md-10">
-            @Html.EditorFor(model => model.Price, new { htmlAttributes = new { @class = "form-control" } })
-            @Html.ValidationMessageFor(model => model.Price, "", new { @class = "text-danger" })
-        </div>
-    </div>
-    <div class="form-group">
-        @Html.Label("Image", htmlAttributes: new { @class = "control-label col-md-2" })
-        <div class="col-md-10">
-            <div id="imgDiv">
-                @Html.Raw("<img style='width:80px; height:60px;' src=\"data:image/jpeg;base64,"
-                                           + Convert.ToBase64String(ViewBag.ImageBook.ImageData) + "\" />")
+        <div class="form-group">
+            @Html.LabelFor(model => model.Title, htmlAttributes: new { @class = "control-label col-md-2" })
+            <div class="col-md-10">
+                @Html.EditorFor(model => model.Title, new { htmlAttributes = new { @class = "form-control" } })
+                @Html.ValidationMessageFor(model => model.Title, "", new { @class = "text-danger" })
             </div>
-            @Html.DropDownListFor(model => model.ImagesId, ViewBag.Images as SelectList, new { id = "selectImage" })
         </div>
-    </div>
-    <div class="form-group">
-        @Html.LabelFor(model => model.AuthorsId, htmlAttributes: new { @class = "control-label col-md-2" })
-        <div class="col-md-10">
-            @Html.DropDownListFor(model => model.AuthorsId, ViewBag.AuthorList as SelectList)
-            @Html.ValidationMessageFor(model => model.AuthorsId, "", new { @class = "text-danger" })
-        </div>
-    </div>
-    <div class="form-group">
-        @Html.LabelFor(model => model.GenresId, htmlAttributes: new { @class = "control-label col-md-2" })
-        <div class="col-md-10">
-            @Html.DropDownListFor(model => model.GenresId, ViewBag.GenreList as SelectList)
-            @Html.ValidationMessageFor(model => model.AuthorsId, "", new { @class = "text-danger" })
-        </div>
-    </div>
-    <div class="form-group">
-        @Html.LabelFor(model => model.Pages, htmlAttributes: new { @class = "control-label col-md-2" })
-        <div class="col-md-10">
-            @Html.EditorFor(model => model.Pages, new { htmlAttributes = new { @class = "form-control" } })
-            @Html.ValidationMessageFor(model => model.Pages, "", new { @class = "text-danger" })
-        </div>
-    </div>
 
-    <div class="form-group">
-        <div class="col-md-offset-2 col-md-10">
-            <input type="submit" value="Save" class="btn btn-default" />
+        <div class="form-group">
+            @Html.LabelFor(model => model.Price, htmlAttributes: new { @class = "control-label col-md-2" })
+            <div class="col-md-10">
+                @Html.EditorFor(model => model.Price, new { htmlAttributes = new { @class = "form-control" } })
+                @Html.ValidationMessageFor(model => model.Price, "", new { @class = "text-danger" })
+            </div>
+        </div>
+        <div class="form-group">
+            @Html.Label("Image", htmlAttributes: new { @class = "control-label col-md-2" })
+            <div class="col-md-10">
+                <div id="imgDiv">
+                    <div style="display:flex">
+                        <div style="width:8%; height:10px;"></div>
+                        <div class="custom-file">
+                            <input type="file" class="custom-file-input col-md-auto" name="upload" accept="image/jpeg" id="customFile">
+                            <label class="custom-file-label" for="customFile">Choose file</label>
+                        </div>
+                    </div>
+                    @*@Html.Raw("<img style='width:80px; height:60px;' src=\"data:image/jpeg;base64,"
+                        + Convert.ToBase64String(ViewBag.ImageBook.ImageData) + "\" />")*@
+                </div>
+                @*@Html.DropDownListFor(model => model.ImagesId, ViewBag.Images as SelectList, new { id = "selectImage" })*@
+            </div>
+        </div>
+        <div class="form-group">
+            @Html.LabelFor(model => model.AuthorsId, htmlAttributes: new { @class = "control-label col-md-2" })
+            <div class="col-md-10">
+                @Html.DropDownListFor(model => model.AuthorsId, ViewBag.AuthorList as SelectList)
+                @Html.ValidationMessageFor(model => model.AuthorsId, "", new { @class = "text-danger" })
+            </div>
+        </div>
+        <div class="form-group">
+            @Html.LabelFor(model => model.GenresId, htmlAttributes: new { @class = "control-label col-md-2" })
+            <div class="col-md-10">
+                @Html.DropDownListFor(model => model.GenresId, ViewBag.GenreList as SelectList)
+                @Html.ValidationMessageFor(model => model.AuthorsId, "", new { @class = "text-danger" })
+            </div>
+        </div>
+        <div class="form-group">
+            @Html.LabelFor(model => model.Pages, htmlAttributes: new { @class = "control-label col-md-2" })
+            <div class="col-md-10">
+                @Html.EditorFor(model => model.Pages, new { htmlAttributes = new { @class = "form-control" } })
+                @Html.ValidationMessageFor(model => model.Pages, "", new { @class = "text-danger" })
+            </div>
+        </div>
+
+        <div class="form-group">
+            <div class="col-md-offset-2 col-md-10">
+                <input type="submit" value="Save" class="btn btn-default" />
+            </div>
         </div>
     </div>
-</div>
 }
 
 <div>

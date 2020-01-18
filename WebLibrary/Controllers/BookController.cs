@@ -72,8 +72,12 @@ namespace WebLibrary.Controllers
             }
         }
         [HttpGet]
-        public ActionResult Create()
+        public ActionResult Create(int? id)
         {
+            if(id != null) {
+                var book = unitOfWork.Books.GetById(id);
+                return View(book);
+            }
             return View();
         }
         //[HttpPost]
@@ -92,9 +96,8 @@ namespace WebLibrary.Controllers
         [HttpPost]
         public async Task<ActionResult> Create(Books book, HttpPostedFileBase upload)
         {
-            var myfile = Request.Files;
-            //using (Model1 db = new Model1())
-            //{
+            //var form = Request.Form["upload"];
+            //var myfile = Request.Files;
             Images image = new Images();
             Images imageBase = new Images();
             if (ModelState.IsValid)
@@ -120,6 +123,9 @@ namespace WebLibrary.Controllers
                     book.ImagesId = imageBase.Id;
                     System.Diagnostics.Debug.WriteLine(book.ImagesId);
                 }
+                else {
+                    book.Images = new Images { FileName="", ImageData=new byte[1] { 0 } };
+                }
                 unitOfWork.Books.Create(book);// db.Books.Add(book);
                 unitOfWork.Books.Save(); //db.SaveChanges();
                 return new JsonResult { Data = "Данные записаны", JsonRequestBehavior = JsonRequestBehavior.AllowGet };
@@ -127,7 +133,50 @@ namespace WebLibrary.Controllers
             else return View(book);
             //}
         }
+
+        //============================== Edit ========================================
+
+        //[HttpPost]    //больше не нужны - to the Create
+        //public ActionResult Edit(Books book){//
+        //    if (ModelState.IsValid) {
+        //        unitOfWork.Books.Update(book);
+        //        unitOfWork.Books.Save();
+        //    }
+        //    else return View(book);
+
+        //    return RedirectToAction("Index");
+        //}
+
+        //[HttpGet]
+        //public ActionResult PreEdit(int? id)    //обраб. запроса на изм. изобр. из Edit-view
+        //{
+        //    if (id == null)
+        //        return HttpNotFound();
+
+        //    var res = unitOfWork.Images.GetById(id);
+        //    var data = Convert.ToBase64String(res.ImageData);
+        //    return new JsonResult { Data = data, JsonRequestBehavior = JsonRequestBehavior.AllowGet };
+
+        //}
+        [HttpGet]
+        public ActionResult Edit(int? id)
+        {
+            if (id == null)
+                return HttpNotFound();
+
+            Books book = unitOfWork.Books.GetById(id);  //db.Books.Find(id);
+            ViewBag.AuthorList = new SelectList(unitOfWork.Authors.GetAll().ToList(), "Id", "LastName");
+            ViewBag.GenreList = new SelectList(unitOfWork.Genres.GetAll().ToList(), "Id", "Name");
+            ViewBag.ImageBook = unitOfWork.Images.GetAll().Where(i => i.Id == book.ImagesId).FirstOrDefault();
+            ViewBag.Images = new SelectList(unitOfWork.Images.GetAll().ToList(), "Id", "FileName");
+            return View(book);
+
+        }
+
+
+
         //================================== SurveyPage =======================================
+
         [HttpGet]
         public ActionResult SurveyPage()
         {
@@ -257,46 +306,6 @@ namespace WebLibrary.Controllers
             ViewBag.MinPop = orderedTuples[3].Item2;
             return View(fullStatistic.ToList());
 
-        }
-        //============================== Edit ========================================
-        [HttpGet]
-        public ActionResult Edit(int? id)
-        {
-            if (id == null)
-                return HttpNotFound();
-
-            Books book = unitOfWork.Books.GetById(id);  //db.Books.Find(id);
-            ViewBag.AuthorList = new SelectList(unitOfWork.Authors.GetAll().ToList(), "Id", "LastName");
-            ViewBag.GenreList = new SelectList(unitOfWork.Genres.GetAll().ToList(), "Id", "Name");
-            ViewBag.ImageBook = unitOfWork.Images.GetAll().Where(i => i.Id == book.ImagesId).FirstOrDefault();
-            ViewBag.Images = new SelectList(unitOfWork.Images.GetAll().ToList(), "Id", "FileName");
-            return View(book);
-
-        }
-
-        [HttpGet]
-        public ActionResult PreEdit(int? id)    //обраб. запроса на изм. изобр. из Edit-view
-        {
-            if (id == null)
-                return HttpNotFound();
-
-            var res = unitOfWork.Images.GetById(id);
-            var data = Convert.ToBase64String(res.ImageData);
-            return new JsonResult { Data = data, JsonRequestBehavior = JsonRequestBehavior.AllowGet };
-
-        }
-
-        [HttpPost]
-        public ActionResult Edit(Books book)
-        {
-            if (ModelState.IsValid)
-            {
-                unitOfWork.Books.Update(book);
-                unitOfWork.Books.Save();
-            }
-            else return View(book);
-            
-            return RedirectToAction("Index");
         }
         //=======================Delete=================================
         [HttpGet]

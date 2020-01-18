@@ -7,13 +7,13 @@ namespace WebLibrary.Migrations
     using System.Resources;
     
     [GeneratedCode("EntityFramework.Migrations", "6.4.0")]
-    public sealed partial class AltLenNameGenre : IMigrationMetadata
+    public sealed partial class Second : IMigrationMetadata
     {
-        private readonly ResourceManager Resources = new ResourceManager(typeof(AltLenNameGenre));
+        private readonly ResourceManager Resources = new ResourceManager(typeof(Second));
         
         string IMigrationMetadata.Id
         {
-            get { return "201912151542204_Alt-Len-NameGenre"; }
+            get { return "202001181052029_Second"; }
         }
         
         string IMigrationMetadata.Source

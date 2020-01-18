@@ -12,12 +12,14 @@
         $('#linkAuthorCreate').on('click', function (event) {
             event.preventDefault();
             console.log("open modal");
-            $('input #createSubmit').attr("disabled", false)
+            $('#createSubmit').attr("disabled", false)
+            $('#FirstName').val("");
+            $('#LastName').val("");
             $('#exampleModalScrollable').modal('show');
             //------исправл. двойной отправки из Create\Ajax.BeginForm-----------
             var myForm = document.forms[0];
             $('#createSubmit').on('click', function (e) {
-                e.preventDefault();
+                e.preventDefault(); console.log("submit!");
                 $('#exampleModalScrollable').modal('hide');
                 $('input[type=submit]').attr("disabled", "disabled");
                 $(myForm).triggerHandler('submit');
@@ -29,7 +31,7 @@
                     url: '/Author/Create/',
                     data: $(this).serialize(),   //
                     success: function (data) {
-                        console.log("data: " + data);
+                        //console.log("data: " + data);
                         $('#AjaxAuthorsTable').html("").append(data);
                     },
                     error: function (xhr, msg) {

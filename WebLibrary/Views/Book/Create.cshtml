@@ -22,7 +22,7 @@
                 $('#GenresId').append(option)
             })
         }
-        else console.log("Sorry");
+        else console.log("Sorry localStorage is empty!");
 
         //------Upload Files (+ антидребезг отправки)---------------------------
         var myForm = document.forms[0];
@@ -46,11 +46,12 @@
                     processData: false,
                     data: data,
                     success: function (result) {
-                        alert(result);
+                        alert(result); //"Данные записаны!"
                         $(location).attr('href', '/Book/Index');
                     },
                     error: function (xhr, status) {
                         alert(status);
+                        $('input[type=submit').attr("disabled", "disabled");
                     }
                 });
             } else {
@@ -60,9 +61,13 @@
     })
 
 </script>
-<h2>Create</h2>
-@using (Html.BeginForm("Create", "Book", FormMethod.Post, new { enctype = "multypart/form-data" }))
-{
+@{
+    if (Model == null) {
+        <h2>Create</h2>
+    }
+    else {<h2>Edit</h2>}
+    }
+@using (Html.BeginForm("Create", "Book", FormMethod.Post, new { enctype = "multypart/form-data" })) {
     @Html.AntiForgeryToken()
     <div class="form-horizontal">
         <h4>Books</h4>

@@ -152,44 +152,16 @@
     <Compile Include="Global.asax.cs">
       <DependentUpon>Global.asax</DependentUpon>
     </Compile>
-    <Compile Include="Migrations\202001081551458_AddImageTable.cs" />
-    <Compile Include="Migrations\202001081551458_AddImageTable.designer.cs">
-      <DependentUpon>202001081551458_AddImageTable.cs</DependentUpon>
+    <Compile Include="Migrations\202001181052029_Second.cs" />
+    <Compile Include="Migrations\202001181052029_Second.designer.cs">
+      <DependentUpon>202001181052029_Second.cs</DependentUpon>
     </Compile>
-    <Compile Include="Migrations\202001121423524_AddStatistic.cs" />
-    <Compile Include="Migrations\202001121423524_AddStatistic.designer.cs">
-      <DependentUpon>202001121423524_AddStatistic.cs</DependentUpon>
-    </Compile>
-    <Compile Include="Migrations\202001140550218_AltBookNaviImages.cs" />
-    <Compile Include="Migrations\202001140550218_AltBookNaviImages.designer.cs">
-      <DependentUpon>202001140550218_AltBookNaviImages.cs</DependentUpon>
-    </Compile>
-    <Compile Include="Models\Model1.cs" />
-    <Compile Include="Migrations\201912151452139_First.cs" />
-    <Compile Include="Migrations\201912151452139_First.Designer.cs">
-      <DependentUpon>201912151452139_First.cs</DependentUpon>
-    </Compile>
-    <Compile Include="Migrations\201912151542204_Alt-Len-NameGenre.cs" />
-    <Compile Include="Migrations\201912151542204_Alt-Len-NameGenre.designer.cs">
-      <DependentUpon>201912151542204_Alt-Len-NameGenre.cs</DependentUpon>
-    </Compile>
-    <Compile Include="Migrations\201912171124135_DelInterface.cs" />
-    <Compile Include="Migrations\201912171124135_DelInterface.designer.cs">
-      <DependentUpon>201912171124135_DelInterface.cs</DependentUpon>
-    </Compile>
-    <Compile Include="Migrations\201912221247298_AltOrderBooks.cs" />
-    <Compile Include="Migrations\201912221247298_AltOrderBooks.designer.cs">
-      <DependentUpon>201912221247298_AltOrderBooks.cs</DependentUpon>
-    </Compile>
-    <Compile Include="Migrations\201912221409063_AltKeyOrderBooks.cs" />
-    <Compile Include="Migrations\201912221409063_AltKeyOrderBooks.designer.cs">
-      <DependentUpon>201912221409063_AltKeyOrderBooks.cs</DependentUpon>
-    </Compile>
-    <Compile Include="Migrations\201912221528218_AltBooks-AddKeysNavigation.cs" />
-    <Compile Include="Migrations\201912221528218_AltBooks-AddKeysNavigation.designer.cs">
-      <DependentUpon>201912221528218_AltBooks-AddKeysNavigation.cs</DependentUpon>
+    <Compile Include="Migrations\202001181206383_AltImagesId.cs" />
+    <Compile Include="Migrations\202001181206383_AltImagesId.designer.cs">
+      <DependentUpon>202001181206383_AltImagesId.cs</DependentUpon>
     </Compile>
     <Compile Include="Migrations\Configuration.cs" />
+    <Compile Include="Models\Model1.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Entities\OrderBooks.cs" />
     <Compile Include="Entities\Users.cs" />
@@ -404,32 +376,11 @@
     <Service Include="{4A0DDDB5-7A95-4FBF-97CC-616D07737A77}" />
   </ItemGroup>
   <ItemGroup>
-    <EmbeddedResource Include="Migrations\201912151452139_First.resx">
-      <DependentUpon>201912151452139_First.cs</DependentUpon>
+    <EmbeddedResource Include="Migrations\202001181052029_Second.resx">
+      <DependentUpon>202001181052029_Second.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="Migrations\201912151542204_Alt-Len-NameGenre.resx">
-      <DependentUpon>201912151542204_Alt-Len-NameGenre.cs</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="Migrations\201912171124135_DelInterface.resx">
-      <DependentUpon>201912171124135_DelInterface.cs</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="Migrations\201912221247298_AltOrderBooks.resx">
-      <DependentUpon>201912221247298_AltOrderBooks.cs</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="Migrations\201912221409063_AltKeyOrderBooks.resx">
-      <DependentUpon>201912221409063_AltKeyOrderBooks.cs</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="Migrations\201912221528218_AltBooks-AddKeysNavigation.resx">
-      <DependentUpon>201912221528218_AltBooks-AddKeysNavigation.cs</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="Migrations\202001081551458_AddImageTable.resx">
-      <DependentUpon>202001081551458_AddImageTable.cs</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="Migrations\202001121423524_AddStatistic.resx">
-      <DependentUpon>202001121423524_AddStatistic.cs</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="Migrations\202001140550218_AltBookNaviImages.resx">
-      <DependentUpon>202001140550218_AltBookNaviImages.cs</DependentUpon>
+    <EmbeddedResource Include="Migrations\202001181206383_AltImagesId.resx">
+      <DependentUpon>202001181206383_AltImagesId.cs</DependentUpon>
     </EmbeddedResource>
   </ItemGroup>
   <PropertyGroup>

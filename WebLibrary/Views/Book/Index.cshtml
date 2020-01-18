@@ -90,25 +90,30 @@
         </tr>
     </thead>
     <tbody>
-        @foreach (var item in Model)
-        {
-            <tr class="myrow">
-                <td>@item.Id</td>
-                <td>@item.Title</td>
-                <td>
-                    @Html.Raw("<img style='width:80px; height:60px;' src=\"data:image/jpeg;base64,"
-                                            + Convert.ToBase64String(item.Images.ImageData) + "\" />")
-                </td>
-                <td>@item.Genres.Name</td>
-                <td>@item.Authors.LastName</td>
-                <td>@item.Price</td>
-                <td>@item.Pages</td>
-                @*<td><a href="#" class="read">Прочитавшие</a></td>*@
-                <td>|</td>
-                <td>@Html.ActionLink("Редактировать", "Edit", new { id = item.Id })
-                <td>|</td>
-                <td>@Html.ActionLink("Удалить", "Delete", new { id = item.Id })</td>
-            </tr>
+        @foreach (var item in Model) {
+        <tr class="myrow">
+            <td>@item.Id</td>
+            <td>@item.Title</td>
+            @{
+                if (item.Images != null) {
+                    <td>
+                        @Html.Raw("<img style='width:80px; height:60px;' src=\"data:image/jpeg;base64,"
+                                                + Convert.ToBase64String(item.Images.ImageData) + "\" />")
+                    </td>
+                }
+            }
+
+            <td>@item.Genres.Name</td>
+            <td>@item.Authors.LastName</td>
+            <td>@item.Price</td>
+            <td>@item.Pages</td>
+            @*<td><a href="#" class="read">Прочитавшие</a></td>*@
+            <td>|</td>
+            @*Edit*@
+            <td>@Html.ActionLink("Редактировать", "Create", new { id = item.Id })
+            <td>|</td>
+            <td>@Html.ActionLink("Удалить", "Delete", new { id = item.Id })</td>
+        </tr>
 
         }
     </tbody>
@@ -119,7 +124,7 @@
 <div id="myResult"></div>
 <div style="display:flex; text-align:center">
 
-    <b class = "col-md-3">@Html.ActionLink("Добавить книгу", "PreCreate", null, new { id = "createBookLink", @class="btn btn-primary" })</b>    
-    <b class = "col-md-3">@Html.ActionLink("Выбор книги по параметрам", "SurveyPage", null, new { id = "surveyBookLink", @class = "btn btn-info" })</b>
+    <b class="col-md-3">@Html.ActionLink("Добавить книгу", "PreCreate", null, new { id = "createBookLink", @class = "btn btn-primary" })</b>
+    <b class="col-md-3">@Html.ActionLink("Выбор книги по параметрам", "SurveyPage", null, new { id = "surveyBookLink", @class = "btn btn-info" })</b>
 
 </div>
