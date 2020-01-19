@@ -78,9 +78,10 @@ namespace WebLibrary.Controllers
                 var book = unitOfWork.Books.GetById(id);
                 return View(book);
             }
+            //ViewBag.EmptyBook = new Books { AuthorsId = 0, GenresId = 0 };
             return View();
         }
-        //[HttpPost]
+        //[HttpPost]    //отдельн. загруз. файла - не используется 
         //public ActionResult Upload(HttpPostedFileBase upload)
         //{
         //    var myfile = Request.Files;
@@ -93,7 +94,7 @@ namespace WebLibrary.Controllers
         //    }
         //    return RedirectToAction("Index");
         //}
-        [HttpPost]
+        [HttpPost]  //+Edit!
         public async Task<ActionResult> Create(Books book, HttpPostedFileBase upload)
         {
             //var form = Request.Form["upload"];
@@ -101,37 +102,59 @@ namespace WebLibrary.Controllers
             Images image = new Images();
             Images imageBase = new Images();
             if (ModelState.IsValid)
-            {
-                if (upload != null)
-                {
-                    string filename = System.IO.Path.GetFileName(upload.FileName);
-                    //System.Diagnostics.Debug.WriteLine(filename);
-                    image.FileName = filename;
-                    byte[] myBytes = new byte[upload.ContentLength];
-                    upload.InputStream.Read(myBytes, 0, upload.ContentLength);
-                    image.ImageData = myBytes;
-                    //var temp = await db.Images.Where(i => i.FileName == image.FileName).ToListAsync();
-                    var temp = await unitOfWork.Images.GetAll().Where(i => i.FileName == image.FileName).ToListAsync();
-                    if (temp == null || temp.Count() == 0)  //если такого нет - сохранить
-                    {
-                        unitOfWork.Images.Create(image);//db.Images.Add(image);
-                        unitOfWork.Images.Save();   //db.SaveChanges();
+            {                
+                if (book.Id == 0) {
+                    if (upload != null) {
+                        imageBase = await SetImage(book, upload, image, imageBase);
                     }
-                    //List<Images> imageBases = await db.Images.Where(i => i.FileName == image.FileName).ToListAsync();
-                    List<Images> imageBases = await unitOfWork.Images.GetAll().Where(i => i.FileName == image.FileName).ToListAsync();
-                    imageBase = imageBases[0];
-                    book.ImagesId = imageBase.Id;
-                    System.Diagnostics.Debug.WriteLine(book.ImagesId);
+                    else {
+                        book.Images = new Images { FileName = "", ImageData = new byte[1] { 0 } };
+                    }
+                    unitOfWork.Books.Create(book);  // db.Books.Add(book);
                 }
                 else {
-                    book.Images = new Images { FileName="", ImageData=new byte[1] { 0 } };
+                    if (upload != null) {
+                        imageBase = await SetImage(book, upload, image, imageBase);
+                    }
+                    else {
+                        var allBooks = await unitOfWork.Books.GetAllNoTracking().ToListAsync(); //
+                                                                                      //.GetById(book.Id);
+                        var tempBook = allBooks.Where(b => b.Id == book.Id).FirstOrDefault();
+                        int imagesIdTempBook = (int)tempBook.ImagesId;
+                        book.ImagesId = unitOfWork.Images.GetById(imagesIdTempBook).Id;
+                    }
+                    unitOfWork.Books.Update(book);
+                    //unitOfWork.Books.UpdateAttach(book);
                 }
-                unitOfWork.Books.Create(book);// db.Books.Add(book);
+               
                 unitOfWork.Books.Save(); //db.SaveChanges();
                 return new JsonResult { Data = "Данные записаны", JsonRequestBehavior = JsonRequestBehavior.AllowGet };
             }
             else return View(book);
             //}
+        }
+
+        private async Task<Images> SetImage(Books book, HttpPostedFileBase upload, Images image, Images imageBase)
+        {
+            string filename = System.IO.Path.GetFileName(upload.FileName);
+            //System.Diagnostics.Debug.WriteLine(filename);
+            image.FileName = filename;
+            byte[] myBytes = new byte[upload.ContentLength];
+            upload.InputStream.Read(myBytes, 0, upload.ContentLength);
+            image.ImageData = myBytes;
+            //var temp = await db.Images.Where(i => i.FileName == image.FileName).ToListAsync();
+            var temp = await unitOfWork.Images.GetAll().Where(i => i.FileName == image.FileName).ToListAsync();
+            if (temp == null || temp.Count() == 0)  //если такого нет - сохранить
+            {
+                unitOfWork.Images.Create(image);//db.Images.Add(image);
+                unitOfWork.Images.Save();   //db.SaveChanges();
+            }
+            //List<Images> imageBases = await db.Images.Where(i => i.FileName == image.FileName).ToListAsync();
+            List<Images> imageBases = await unitOfWork.Images.GetAll().Where(i => i.FileName == image.FileName).ToListAsync();
+            imageBase = imageBases[0];
+            book.ImagesId = imageBase.Id;
+            System.Diagnostics.Debug.WriteLine(book.ImagesId);
+            return imageBase;
         }
 
         //============================== Edit ========================================
@@ -158,20 +181,20 @@ namespace WebLibrary.Controllers
         //    return new JsonResult { Data = data, JsonRequestBehavior = JsonRequestBehavior.AllowGet };
 
         //}
-        [HttpGet]
-        public ActionResult Edit(int? id)
-        {
-            if (id == null)
-                return HttpNotFound();
+        //[HttpGet]
+        //public ActionResult Edit(int? id)
+        //{
+        //    if (id == null)
+        //        return HttpNotFound();
 
-            Books book = unitOfWork.Books.GetById(id);  //db.Books.Find(id);
-            ViewBag.AuthorList = new SelectList(unitOfWork.Authors.GetAll().ToList(), "Id", "LastName");
-            ViewBag.GenreList = new SelectList(unitOfWork.Genres.GetAll().ToList(), "Id", "Name");
-            ViewBag.ImageBook = unitOfWork.Images.GetAll().Where(i => i.Id == book.ImagesId).FirstOrDefault();
-            ViewBag.Images = new SelectList(unitOfWork.Images.GetAll().ToList(), "Id", "FileName");
-            return View(book);
+        //    Books book = unitOfWork.Books.GetById(id);  //db.Books.Find(id);
+        //    ViewBag.AuthorList = new SelectList(unitOfWork.Authors.GetAll().ToList(), "Id", "LastName");
+        //    ViewBag.GenreList = new SelectList(unitOfWork.Genres.GetAll().ToList(), "Id", "Name");
+        //    ViewBag.ImageBook = unitOfWork.Images.GetAll().Where(i => i.Id == book.ImagesId).FirstOrDefault();
+        //    ViewBag.Images = new SelectList(unitOfWork.Images.GetAll().ToList(), "Id", "FileName");
+        //    return View(book);
 
-        }
+        //}
 
 
 
@@ -325,7 +348,7 @@ namespace WebLibrary.Controllers
             if (book == null)
                 return HttpNotFound();
 
-            unitOfWork.Books.Update(book);
+            unitOfWork.Books.Delete(book.Id);
             unitOfWork.Books.Save();
 
 

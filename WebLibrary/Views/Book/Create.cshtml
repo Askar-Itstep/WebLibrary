@@ -3,6 +3,12 @@
 @{
     ViewBag.Title = "Create";
     Layout = "~/Views/Shared/_Layout.cshtml";
+    var authorId = 0;
+    var genreId = 0;
+    if (Model != null) {
+        authorId = (int)Model.AuthorsId;
+        genreId = (int)Model.GenresId;
+    }
 }
 <script>
     $(document).ready(function () {
@@ -24,7 +30,15 @@
         }
         else console.log("Sorry localStorage is empty!");
 
-        //------Upload Files (+ антидребезг отправки)---------------------------
+        //-------при Edit -> установ. select в знач. полей книги---------
+        if (($('#headEdit').attr('data-type')) != undefined) {
+            //console.log($('#headEdit').attr('data-type'));
+
+            $('#AuthorsId').val(@authorId);//как изменить?
+            $('#GenresId').val(@genreId);
+        }
+
+        //-------------Upload Files (+ антидребезг отправки)---------------------------
         var myForm = document.forms[0];
         $('input[type=submit').on('click', function (e) {
             $(this).attr("disabled", "disabled");
@@ -35,7 +49,7 @@
             console.log(files)
             if (window.FormData !== undefined) {
                 var data = new FormData(document.forms[0]);
-                console.log(data)
+                //console.log(data)
                 for (var x = 0; x < files.length; x++) {
                     data.append("file" + x, files[x]);
                 }
@@ -58,22 +72,30 @@
                 alert("Браузер не поддерживает загрузку файлов HTML5!");
             }
         });
-    })
 
+    })
 </script>
+
 @{
     if (Model == null) {
-        <h2>Create</h2>
+        <h2 id="headCreate" data-type="create">Create</h2>
     }
-    else {<h2>Edit</h2>}
+    else {
+        <h2 id="headEdit" data-type="edit" data-num1="authorEmptyId" data-num2="genreEmptyId">Edit</h2>
     }
+}
 @using (Html.BeginForm("Create", "Book", FormMethod.Post, new { enctype = "multypart/form-data" })) {
     @Html.AntiForgeryToken()
     <div class="form-horizontal">
         <h4>Books</h4>
         <hr />
         @Html.ValidationSummary(true, "", new { @class = "text-danger" })
+        @{
+            if (Model != null) {
+                @Html.HiddenFor(m => m.Id)
+            }
 
+        }
         <div style="display:flex">
             <div style="width:8%; height:10px;"></div>
             <div class="custom-file">
