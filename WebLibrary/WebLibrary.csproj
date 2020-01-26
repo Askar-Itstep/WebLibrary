@@ -141,34 +141,13 @@
     <Compile Include="Controllers\GenreController.cs" />
     <Compile Include="Controllers\OrderBookController.cs" />
     <Compile Include="Controllers\UserController.cs" />
-    <Compile Include="Entities\Authors.cs" />
-    <Compile Include="Entities\Books.cs" />
     <Compile Include="Controllers\AuthorController.cs" />
     <Compile Include="Controllers\BookController.cs" />
     <Compile Include="Controllers\HomeController.cs" />
-    <Compile Include="Entities\Genres.cs" />
-    <Compile Include="Entities\Images.cs" />
-    <Compile Include="Entities\Statistic.cs" />
     <Compile Include="Global.asax.cs">
       <DependentUpon>Global.asax</DependentUpon>
     </Compile>
-    <Compile Include="Migrations\202001181052029_Second.cs" />
-    <Compile Include="Migrations\202001181052029_Second.designer.cs">
-      <DependentUpon>202001181052029_Second.cs</DependentUpon>
-    </Compile>
-    <Compile Include="Migrations\202001181206383_AltImagesId.cs" />
-    <Compile Include="Migrations\202001181206383_AltImagesId.designer.cs">
-      <DependentUpon>202001181206383_AltImagesId.cs</DependentUpon>
-    </Compile>
-    <Compile Include="Migrations\Configuration.cs" />
-    <Compile Include="Models\Model1.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Entities\OrderBooks.cs" />
-    <Compile Include="Entities\Users.cs" />
-    <Compile Include="Repository\BaseRepository.cs" />
-    <Compile Include="Repository\IRepository.cs" />
-    <Compile Include="Repository\IUnitOfWork.cs" />
-    <Compile Include="Repository\UnitOfWork.cs" />
     <Compile Include="Utils\MyHelpers.cs" />
   </ItemGroup>
   <ItemGroup>
@@ -365,6 +344,7 @@
   <ItemGroup>
     <Folder Include="App_Data\" />
     <Folder Include="Files\" />
+    <Folder Include="Models\" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
@@ -376,12 +356,10 @@
     <Service Include="{4A0DDDB5-7A95-4FBF-97CC-616D07737A77}" />
   </ItemGroup>
   <ItemGroup>
-    <EmbeddedResource Include="Migrations\202001181052029_Second.resx">
-      <DependentUpon>202001181052029_Second.cs</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="Migrations\202001181206383_AltImagesId.resx">
-      <DependentUpon>202001181206383_AltImagesId.cs</DependentUpon>
-    </EmbeddedResource>
+    <ProjectReference Include="..\DataLayer\DataLayer.csproj">
+      <Project>{62DA8810-46F4-45C0-8788-A10B12BB81FC}</Project>
+      <Name>DataLayer</Name>
+    </ProjectReference>
   </ItemGroup>
   <PropertyGroup>
     <VisualStudioVersion Condition="'$(VisualStudioVersion)' == ''">10.0</VisualStudioVersion>
