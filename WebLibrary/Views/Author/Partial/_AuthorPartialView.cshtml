@@ -1,9 +1,13 @@
-﻿@model IEnumerable<WebLibrary.Authors>
+﻿@*@model IEnumerable<WebLibrary.Authors>*@
+@model IEnumerable<WebLibrary.ViewModels.AuthorViewModel>
 
 <h2>Авторы книг</h2>
 
 <table class="table">
     <tr>
+        @*<th>
+            @Html.DisplayNameFor(model => model.AuthorName)
+        </th>*@
         <th>
             @Html.DisplayNameFor(model => model.FirstName)
         </th>
@@ -13,8 +17,11 @@
         <th></th>
     </tr>
 
-@foreach (var item in Model) {
+    @foreach (var item in Model) {
     <tr class="trAuthorId" id="@item.Id">
+        @*<td>
+            @Html.DisplayFor(modelItem => item.AuthorName)
+        </td>*@
         <td>
             @Html.DisplayFor(modelItem => item.FirstName)
         </td>
@@ -22,11 +29,11 @@
             @Html.DisplayFor(modelItem => item.LastName)
         </td>
         <td>
-            @Html.ActionLink("Edit", "Edit", new { id=item.Id }, new {@class = "linkAuthorEdit" }) |
-            @Html.ActionLink("Details", "Details", new { id=item.Id }) |
-            @Html.ActionLink("Delete", "Delete", new { id=item.Id })
+            @Html.ActionLink("Edit", "Edit", new { id = item.Id }, new { @class = "linkAuthorEdit" }) |
+            @Html.ActionLink("Details", "Details", new { id = item.Id }) |
+            @Html.ActionLink("Delete", "Delete", new { id = item.Id })
         </td>
     </tr>
-}
+    }
 
 </table>

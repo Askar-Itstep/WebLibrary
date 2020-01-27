@@ -1,5 +1,5 @@
-﻿@model WebLibrary.Authors
-
+﻿@model WebLibrary.ViewModels.AuthorViewModel
+@*@model WebLibrary.Authors*@
 @{
     ViewBag.Title = "Create";
     Layout = "~/Views/Shared/_Layout.cshtml";
@@ -7,14 +7,20 @@
 
 <h2>Create</h2>
 @*действие формы переопределено из-за двойной отправки (дребезг мыши?)*@
-@using (Ajax.BeginForm("Create", new AjaxOptions { UpdateTargetId = "AjaxAuthorTable",  HttpMethod = "Post", Url = "/Author/Create"}))
-{
+@using (Ajax.BeginForm("Create", new AjaxOptions { UpdateTargetId = "AjaxAuthorTable", HttpMethod = "Post", Url = "/Author/Create" })) {
     @Html.AntiForgeryToken()
 
     <div class="form-horizontal">
         <h4>Authors</h4>
         <hr />
         @Html.ValidationSummary(true, "", new { @class = "text-danger" })
+        @*<div class="form-group">
+                @Html.LabelFor(model => model.AuthorName, htmlAttributes: new { @class = "control-label col-md-2" })
+                <div class="col-md-10">
+                    @Html.EditorFor(model => model.AuthorName, new { htmlAttributes = new { @class = "form-control" } })
+                    @Html.ValidationMessageFor(model => model.AuthorName, "", new { @class = "text-danger" })
+                </div>
+            </div>*@
         <div class="form-group">
             @Html.LabelFor(model => model.FirstName, htmlAttributes: new { @class = "control-label col-md-2" })
             <div class="col-md-10">
@@ -22,14 +28,13 @@
                 @Html.ValidationMessageFor(model => model.FirstName, "", new { @class = "text-danger" })
             </div>
         </div>
-
         <div class="form-group">
-            @Html.LabelFor(model => model.LastName, htmlAttributes: new { @class = "control-label col-md-2" })
-            <div class="col-md-10">
-                @Html.EditorFor(model => model.LastName, new { htmlAttributes = new { @class = "form-control" } })
-                @Html.ValidationMessageFor(model => model.LastName, "", new { @class = "text-danger" })
+                @Html.LabelFor(model => model.LastName, htmlAttributes: new { @class = "control-label col-md-2" })
+                <div class="col-md-10">
+                    @Html.EditorFor(model => model.LastName, new { htmlAttributes = new { @class = "form-control" } })
+                    @Html.ValidationMessageFor(model => model.LastName, "", new { @class = "text-danger" })
+                </div>
             </div>
-        </div>
 
         <div class="form-group">
             <div class="col-md-offset-2 col-md-10">

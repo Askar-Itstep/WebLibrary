@@ -93,6 +93,7 @@
     <Compile Include="Repository\IUnitOfWork.cs" />
     <Compile Include="Repository\Model1.cs" />
     <Compile Include="Repository\UnitOfWork.cs" />
+    <Compile Include="UnitOfWork\UnitOfWorkFactory.cs" />
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="Migrations\202001181052029_Second.resx">

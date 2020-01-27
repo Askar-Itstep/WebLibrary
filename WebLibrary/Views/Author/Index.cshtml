@@ -1,10 +1,12 @@
-﻿@*@using WebLibrary.Entities*@
-@model List<Authors>
+﻿@using WebLibrary.ViewModels
+@*@model List<Authors>*@
+@model IEnumerable<WebLibrary.ViewModels.AuthorViewModel>
 
 @{
     ViewBag.Title = "Index";
     Layout = "~/Views/Shared/_Layout.cshtml";
-    Authors author = new Authors();
+    AuthorViewModel author = new AuthorViewModel();
+    //Authors author = new Authors();
 }
 <script>
     $(document).ready(function () {
@@ -31,7 +33,7 @@
                     url: '/Author/Create/',
                     data: $(this).serialize(),   //
                     success: function (data) {
-                        //console.log("data: " + data);
+                        console.log("data: " + data);
                         $('#AjaxAuthorsTable').html("").append(data);
                     },
                     error: function (xhr, msg) {
@@ -44,10 +46,10 @@
         $('.linkAuthorEdit')
             .on('click', function (e) {
                 e.preventDefault();
-                //console.log(e.target)
+                console.log(e.target)
                 $('input #editSubmit').attr('disabled', false);
                 var authorId = $(e.target).parent().parent().attr('id');
-                //console.log("authorID: " + authorId); 
+                console.log("authorID: " + authorId); 
                 $.ajax({
                     url: "/Author/Edit/",
                     type: "GET",
@@ -56,9 +58,16 @@
                     success: function (data) {
                         $('#modalEdit').modal('show');
                         //console.log(data[0]["FirstName"])
+                        console.log(data[0]["AuthorName"])
                         $('#editAuthorId').val(data[0]["Id"])
-                        $('#editFirstName').val(data[0]["FirstName"])
-                        $('#editLastName').val(data[0]["LastName"])
+                        //$('#editFirstName').val(data[0]["FirstName"])
+                        //$('#editLastName').val(data[0]["LastName"])
+                        var responce = data[0]["AuthorName"];
+                        var firstName = responce.slice(0, responce.indexOf(' '))
+                        var lastName = responce.slice(responce.indexOf(' '))
+                        $('#editFirstName').val(firstName)
+                        $('#editLastName').val(lastName)
+                        console.log("authorName[1]: " + lastName)
                     },
                     error: function (e, msg) {
                         $('#hiddenError').text(msg[1]);
@@ -82,7 +91,8 @@
                 </button>
             </div>
             <div class="modal-body" id="modal-body">
-                @Html.Partial("Partial/_CreatePartialView", new Authors())
+                @Html.Partial("Partial/_CreatePartialView", author)
+                @*@Html.Partial("Partial/_CreatePartialView", new Authors())*@
             </div>
         </div>
     </div>
