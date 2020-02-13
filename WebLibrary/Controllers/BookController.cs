@@ -1,4 +1,6 @@
-﻿using Newtonsoft.Json;
+﻿using AutoMapper;
+using BusinessLayer.BusinessObject;
+using Newtonsoft.Json;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -10,36 +12,30 @@ using System.Web;
 using System.Web.Mvc;
 using WebLibrary.Entities;
 using WebLibrary.Repository;
+using WebLibrary.ViewModels;
 
 namespace WebLibrary.Controllers
 {
 
     public class BookController : Controller
     {
-        public static List<Users> UserList { get; set; }
-        public static List<Statistic> Statistics { get; set; }
-
-        public UnitOfWork unitOfWork;
-        public BookController()
+        public static List<StatisticVM> Statistics { get; set; }
+        
+        IMapper mapper;
+        public BookController(IMapper mapper)
         {
-            unitOfWork = new UnitOfWork();
+            this.mapper = mapper;
         }
-        //========================= ActionMethods ======================================
 
-        public ActionResult UsersReadThisBook(int? id)//замена -для возвр. PartView
+        public ActionResult UsersReadThisBook(int? id)
         {
-            UserList = new List<Users>();
             using (Model1 db = new Model1())
             {
-
-                //var orders = db.OrderBooks            //выбрать все заказы этой книги
-                //    //.Include(o => o.Users).Include(o => o.Books)
-                //    .Where(o => o.BooksId == id).ToList();
-                var orders = unitOfWork.OrderBooks.GetAll().Where(o => o.BooksId == id);
-                UserList = orders.Select(o => o.Users).ToList();    //а из них пользователей
-
+                var ordersBO = DependencyResolver.Current.GetService<OrderBookBO>().LoadAll().Where(o=>o.BooksId==id);
+                var ordersVM = mapper.Map<List<OrderBookVM>>(ordersBO);
+                var userList = ordersVM.Select(o => o.Users).ToList();
                 ViewBag.Book = db.Books.Find(id).Title;
-                return PartialView("Partial/_UsersReadThisBook", UserList);
+                return PartialView("Partial/_UsersReadThisBook", userList);
             }
         }
 
@@ -47,23 +43,27 @@ namespace WebLibrary.Controllers
         {
             using (Model1 db = new Model1())
             {
-                //var books = db.Books.Include(b => b.Authors).Include(b => b.Genres).Include(b => b.Images).ToList();
-                var books = unitOfWork.Books.Include("Authors", "Genres", "Images").ToList();
-                return View(books);
+                var books = DependencyResolver.Current.GetService<BooksBO>().LoadAll().ToList();    //virtual!
+                var booksVM = books.Select(b => mapper.Map<BookVM>(b)).ToList();
+                return View(booksVM);
             }
         }
         //==================================== Create ================================
-        [HttpGet]   //No ViewBag - No SelectList!
-        public ActionResult PreCreate() //Index-view ->this-> Index-view-> Create-view..
+        [HttpGet]   //заполнен. select'ов в Create без ViewBag.SelectList
+        public ActionResult PreCreate() //переход по ссылке IndexPage ->PreCreate-> IndexPage -> CreatePage ..
         {
             using (Model1 db = new Model1())
             {
-                var authorList = unitOfWork.Authors.GetAll().ToList();//db.Authors.ToList();
-                var genreList = unitOfWork.Genres.GetAll().ToList();//db.Genres.ToList();
-                var arrayList = new ArrayList(authorList);
-                arrayList.AddRange(genreList);
+                var authorList = DependencyResolver.Current.GetService<AuthorBO>().LoadAll().ToList();
+                var authorListVM = mapper.Map<List<AuthorVM>>(authorList);
 
-                var json = JsonConvert.SerializeObject(arrayList);
+                var genreList = DependencyResolver.Current.GetService<GenreBO>().LoadAll().ToList();
+                var genreListVM = mapper.Map<List<GenreVM>>(genreList);
+
+                var dataList = new ArrayList(authorListVM);
+                dataList.AddRange(genreList);
+
+                var json = JsonConvert.SerializeObject(dataList);
                 return new JsonResult
                 {
                     Data = json,
@@ -71,165 +71,102 @@ namespace WebLibrary.Controllers
                 };
             }
         }
-        [HttpGet]
+        [HttpGet]//+Edit!
         public ActionResult Create(int? id)
         {
             if(id != null) {
-                var book = unitOfWork.Books.GetById(id);
-                return View(book);
+                var bookBO = DependencyResolver.Current.GetService<BooksBO>().Load((int)id);
+                var bookVM = mapper.Map<BookVM>(bookBO);
+                return View(bookVM);
             }
-            //ViewBag.EmptyBook = new Books { AuthorsId = 0, GenresId = 0 };
             return View();
         }
-        //[HttpPost]    //отдельн. загруз. файла - не используется 
-        //public ActionResult Upload(HttpPostedFileBase upload)
-        //{
-        //    var myfile = Request.Files;
-        //    var xfiles = Request.InputStream;
-        //    if (upload != null)
-        //    {
-        //        string fileName = System.IO.Path.GetFileName(upload.FileName);
-        //        // сохраняем файл в папку Files в проекте
-        //        upload.SaveAs(Server.MapPath("~/Files/" + fileName));
-        //    }
-        //    return RedirectToAction("Index");
-        //}
         [HttpPost]  //+Edit!
-        public async Task<ActionResult> Create(Books book, HttpPostedFileBase upload)
+        public async Task<ActionResult> Create(BookVM bookVM, HttpPostedFileBase upload)
         {
-            //var form = Request.Form["upload"];
-            //var myfile = Request.Files;
-            Images image = new Images();
-            Images imageBase = new Images();
+            ImageVM image = DependencyResolver.Current.GetService<ImageVM>();
+            ImageBO imageBase = DependencyResolver.Current.GetService<ImageBO>();
+            var bookBO = mapper.Map<BooksBO>(bookVM);
             if (ModelState.IsValid)
             {                
-                if (book.Id == 0) {
-                    if (upload != null) {
-                        imageBase = await SetImage(book, upload, image, imageBase);
+                if (bookVM.Id == 0) {   //Create
+                    if (upload != null) { //with img
+                        imageBase = await SetImage(bookVM, upload, image, imageBase);
+                        bookBO.ImagesId = imageBase.Id;
                     }
                     else {
-                        book.Images = new Images { FileName = "", ImageData = new byte[1] { 0 } };
+                        bookVM.Images = new Images { FileName = "", ImageData = new byte[1] { 0 } };
                     }
-                    unitOfWork.Books.Create(book);  // db.Books.Add(book);
+                    
                 }
-                else {
-                    if (upload != null) {
-                        imageBase = await SetImage(book, upload, image, imageBase);
+                else {  //Update
+                    if (upload != null) {   //with img
+                        imageBase = await SetImage(bookVM, upload, image, imageBase);
+                        bookBO.ImagesId = imageBase.Id;
                     }
-                    else {
-                        var allBooks = await unitOfWork.Books.GetAllNoTracking().ToListAsync(); //
-                                                                                      //.GetById(book.Id);
-                        var tempBook = allBooks.Where(b => b.Id == book.Id).FirstOrDefault();
-                        int imagesIdTempBook = (int)tempBook.ImagesId;
-                        book.ImagesId = unitOfWork.Images.GetById(imagesIdTempBook).Id;
+                    else { 
+                        var tempBookBO = DependencyResolver.Current.GetService<BooksBO>().Load(bookVM.Id);
+                        int imagesIdTempBook = (int)tempBookBO.ImagesId;
+                        bookBO.ImagesId = DependencyResolver.Current.GetService<ImageBO>().Load(imagesIdTempBook).Id;
                     }
-                    unitOfWork.Books.Update(book);
-                    //unitOfWork.Books.UpdateAttach(book);
-                }
-               
-                unitOfWork.Books.Save(); //db.SaveChanges();
+                }               
+                bookBO.Save(bookBO); 
                 return new JsonResult { Data = "Данные записаны", JsonRequestBehavior = JsonRequestBehavior.AllowGet };
             }
-            else return View(book);
+            else return View(bookVM);
             //}
         }
 
-        private async Task<Images> SetImage(Books book, HttpPostedFileBase upload, Images image, Images imageBase)
+        private async Task<ImageBO> SetImage(BookVM book, HttpPostedFileBase upload, ImageVM image, ImageBO imageBase)
         {
             string filename = System.IO.Path.GetFileName(upload.FileName);
-            //System.Diagnostics.Debug.WriteLine(filename);
             image.FileName = filename;
             byte[] myBytes = new byte[upload.ContentLength];
             upload.InputStream.Read(myBytes, 0, upload.ContentLength);
             image.ImageData = myBytes;
-            //var temp = await db.Images.Where(i => i.FileName == image.FileName).ToListAsync();
-            var temp = await unitOfWork.Images.GetAll().Where(i => i.FileName == image.FileName).ToListAsync();
-            if (temp == null || temp.Count() == 0)  //если такого нет - сохранить
+            var imgListBO = DependencyResolver.Current.GetService<ImageBO>().LoadAll().Where(i => i.FileName == image.FileName).ToList();
+            if (imgListBO == null || imgListBO.Count() == 0)  //если такого нет - сохранить
             {
-                unitOfWork.Images.Create(image);//db.Images.Add(image);
-                unitOfWork.Images.Save();   //db.SaveChanges();
+                var imageBO = mapper.Map<ImageBO>(image);
+                imageBase.Save(imageBO);
             }
-            //List<Images> imageBases = await db.Images.Where(i => i.FileName == image.FileName).ToListAsync();
-            List<Images> imageBases = await unitOfWork.Images.GetAll().Where(i => i.FileName == image.FileName).ToListAsync();
+            List<ImageBO> imageBases = DependencyResolver.Current.GetService<ImageBO>().LoadAll().Where(i => i.FileName == image.FileName).ToList();
             imageBase = imageBases[0];
-            book.ImagesId = imageBase.Id;
-            System.Diagnostics.Debug.WriteLine(book.ImagesId);
             return imageBase;
         }
-
-        //============================== Edit ========================================
-
-        //[HttpPost]    //больше не нужны - to the Create
-        //public ActionResult Edit(Books book){//
-        //    if (ModelState.IsValid) {
-        //        unitOfWork.Books.Update(book);
-        //        unitOfWork.Books.Save();
-        //    }
-        //    else return View(book);
-
-        //    return RedirectToAction("Index");
-        //}
-
-        //[HttpGet]
-        //public ActionResult PreEdit(int? id)    //обраб. запроса на изм. изобр. из Edit-view
-        //{
-        //    if (id == null)
-        //        return HttpNotFound();
-
-        //    var res = unitOfWork.Images.GetById(id);
-        //    var data = Convert.ToBase64String(res.ImageData);
-        //    return new JsonResult { Data = data, JsonRequestBehavior = JsonRequestBehavior.AllowGet };
-
-        //}
-        //[HttpGet]
-        //public ActionResult Edit(int? id)
-        //{
-        //    if (id == null)
-        //        return HttpNotFound();
-
-        //    Books book = unitOfWork.Books.GetById(id);  //db.Books.Find(id);
-        //    ViewBag.AuthorList = new SelectList(unitOfWork.Authors.GetAll().ToList(), "Id", "LastName");
-        //    ViewBag.GenreList = new SelectList(unitOfWork.Genres.GetAll().ToList(), "Id", "Name");
-        //    ViewBag.ImageBook = unitOfWork.Images.GetAll().Where(i => i.Id == book.ImagesId).FirstOrDefault();
-        //    ViewBag.Images = new SelectList(unitOfWork.Images.GetAll().ToList(), "Id", "FileName");
-        //    return View(book);
-
-        //}
-
-
 
         //================================== SurveyPage =======================================
 
         [HttpGet]
         public ActionResult SurveyPage()
         {
-            var authorList = unitOfWork.Authors.GetAll().ToList();//db.Authors.ToList();
-            authorList.Add(new Authors { LastName = "" });  //в select верх д/н быть пустой
+            var authorListBO = DependencyResolver.Current.GetService<AuthorBO>().LoadAll().ToList();
+            var authorList = mapper.Map<List<AuthorVM>>(authorListBO);
+            authorList.Add(new AuthorVM { LastName = "" });         //в select верх д/н быть пустой
             ViewBag.AuthorList = new SelectList(authorList.OrderBy(a => a.LastName), "Id", "LastName");
-            ViewBag.GenreList = unitOfWork.Genres.GetAll().ToList();//db.Genres.ToList();
+            var genresBO = DependencyResolver.Current.GetService<GenreBO>().LoadAll();
+            var genresVM = mapper.Map<List<GenreVM>>(genresBO);
+            ViewBag.GenreList = genresVM.ToList();
             return View();
 
         }
 
         [HttpPost]
-        public ActionResult SurveyPage(Books book)
+        public ActionResult SurveyPage(BookVM book)
         {
             if (Request.Form.Count != 0)
             {
-                Statistic statistic = new Statistic();
+                StatisticVM statistic = new StatisticVM();
                 int authorId = 0;
                 string title = "";
                 int genreId = 0;
                 string isImageString = "";
                 bool isImage = false;
                 HandlerForm(statistic, ref authorId, ref title, ref genreId, ref isImageString, ref isImage);
-
-                //----------------Seach------------------------                  
-
-                Statistics = unitOfWork.Statistics.GetAll().ToList(); //db.Statistics.ToList();
-                                                                      //Statistics.Add(statistic);
-                unitOfWork.Statistics.Create(statistic);
-                unitOfWork.Statistics.Save();                       //db.SaveChanges();
+                var statisticBO = mapper.Map<StatisticBO>(statistic);
+                statisticBO.Save(statisticBO);
+               
+                 //----------------Seach------------------------                  
                 ArrayList bigList = GetRequestBooks(authorId, title, genreId, isImage);
                 var data = JsonConvert.SerializeObject(bigList);   //
                 return new JsonResult
@@ -242,7 +179,7 @@ namespace WebLibrary.Controllers
             }
             return View();
         }
-        private void HandlerForm(Statistic statistic, ref int authorId, ref string title, ref int genreId, ref string isImageString, ref bool isImage)
+        private void HandlerForm(StatisticVM statistic, ref int authorId, ref string title, ref int genreId, ref string isImageString, ref bool isImage)
         {
             foreach (string item in Request.Form.Keys)
             {
@@ -280,7 +217,9 @@ namespace WebLibrary.Controllers
 
         private ArrayList GetRequestBooks(int authorId, string title, int genreId, bool isImage)
         {
-            List<Books> books = unitOfWork.Books.Include(nameof(Authors)).Include(nameof(Genres)).Include(nameof(Images)).ToList();
+            //List<Books> books = unitOfWork.Books.Include(nameof(Authors)).Include(nameof(Genres)).Include(nameof(Images)).ToList();
+            var booksBO = DependencyResolver.Current.GetService<BooksBO>().LoadAll().ToList();
+            var books = mapper.Map<List<BookVM>>(booksBO);
 
             if (authorId != 0)//1)all books for author
                 books = books.Where(b => b.AuthorsId == authorId).ToList();
@@ -299,7 +238,7 @@ namespace WebLibrary.Controllers
             {
                 var imgData = Convert.ToBase64String(b.Images.ImageData);
                 b.Images.ImageData = null;  //облегч. поклажи
-                Tuple<Books, string> tuple = new Tuple<Books, string>(b, imgData);
+                Tuple<BookVM, string> tuple = new Tuple<BookVM, string>(b, imgData);
                 bigList.Add(tuple);
             });
             return bigList;
@@ -308,11 +247,13 @@ namespace WebLibrary.Controllers
 
         public ActionResult StatisticReport()
         {
-            var fullStatistic = unitOfWork.Statistics.GetAll();//db.Statistics.ToList();
-            var fullCountAuthorChoice = unitOfWork.Statistics.GetAll().Sum(s => s.CountAuthorChoice);
-            var fullCountTitleChoice = unitOfWork.Statistics.GetAll().Sum(s => s.CountTitleChoice);
-            var fullCountGenreChoice = unitOfWork.Statistics.GetAll().Sum(s => s.CountGenreChoice);
-            var fullCountImageChoice = unitOfWork.Statistics.GetAll().Sum(s => s.CountIsImageChoice);
+            var fullStatistic = DependencyResolver.Current.GetService<StatisticBO>().LoadAll().ToList();
+            var fullStatisticVM = mapper.Map<List<StatisticVM>>(fullStatistic);
+
+            var fullCountAuthorChoice = fullStatisticVM.Sum(s => s.CountAuthorChoice);
+            var fullCountTitleChoice = fullStatisticVM.Sum(s => s.CountTitleChoice);
+            var fullCountGenreChoice = fullStatisticVM.Sum(s => s.CountGenreChoice);
+            var fullCountImageChoice = fullStatisticVM.Sum(s => s.CountIsImageChoice);
 
             ViewBag.FullCountAuthorChoice = fullCountAuthorChoice;
             ViewBag.FullCountTitleChoice = fullCountTitleChoice;
@@ -325,9 +266,9 @@ namespace WebLibrary.Controllers
                     new Tuple<int, string>(fullCountImageChoice, "ImageChoice")
                 };
             var orderedTuples = tuples.OrderByDescending(t => t.Item1).ToList();
-            ViewBag.MaxPop = orderedTuples[0].Item2;    //после сортировки 1 и последн.-это..
+            ViewBag.MaxPop = orderedTuples[0].Item2;    //после сортировки 1 и последн.-это
             ViewBag.MinPop = orderedTuples[3].Item2;
-            return View(fullStatistic.ToList());
+            return View(fullStatisticVM.ToList());
 
         }
         //=======================Delete=================================
@@ -336,22 +277,20 @@ namespace WebLibrary.Controllers
         {
             if (id == null)
                 return HttpNotFound();
-
-                Books book = unitOfWork.Books.GetById(id);
-                return View(book);
-           
+            var bookBO = DependencyResolver.Current.GetService<BooksBO>().Load((int)id);
+            var bookVM = mapper.Map<BookVM>(bookBO);
+            return View(bookVM);           
         }
 
         [HttpPost]
-        public ActionResult Delete(Books book)
+        public ActionResult Delete(BookVM book)
         {
             if (book == null)
                 return HttpNotFound();
-
-            unitOfWork.Books.Delete(book.Id);
-            unitOfWork.Books.Save();
-
-
+            var bookBO = mapper.Map<BooksBO>(book);
+            var orderListBO = DependencyResolver.Current.GetService<OrderBookBO>().LoadAll().Where(o => o.BooksId == bookBO.Id).ToList();
+            orderListBO.ForEach(o => o.DeleteSave(o));
+            bookBO.DeleteSave(bookBO);  
             return RedirectToAction("Index");
         }
     }

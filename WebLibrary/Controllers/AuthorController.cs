@@ -14,20 +14,15 @@ namespace WebLibrary.Controllers
 {
     public class AuthorController : Controller
     {
-        private UnitOfWork unitOfWork;
         IMapper mapper;
-        public AuthorController(IMapper mapper)
-        {
-            unitOfWork = new UnitOfWork();
+        public AuthorController(IMapper mapper) { 
             this.mapper = mapper;
         }
         public ActionResult Index()
         {
-            //var authors = unitOfWork.Authors.GetAll().ToList();
-            //return View(authors);
             var authorBO = DependencyResolver.Current.GetService<AuthorBO>();
             var authorBOList = authorBO.LoadAll();
-            var viewModel = authorBOList.Select(a => mapper.Map<AuthorViewModel>(a));
+            var viewModel = authorBOList.Select(a => mapper.Map<AuthorVM>(a));
             return View(viewModel);
         }
 
@@ -36,63 +31,39 @@ namespace WebLibrary.Controllers
         {
             var firstName = Request["FirstName"];
             var lastName = Request["LastName"];
-            //if (firstName != null && lastName != null)
-            {
-                //unitOfWork.Authors.Create(new Authors { FirstName = firstName, LastName = lastName });
-                //unitOfWork.Authors.Save();
-                //return PartialView("Partial/_AuthorPartialView", unitOfWork.Authors.GetAll().ToList());                
-            }
+            
             var authorName = Request.Form["AuthorName"];
             if(authorName != null) {
                 var authorBO = DependencyResolver.Current.GetService<AuthorBO>();
-                authorBO.AuthorName = authorName + " " + lastName;
                 authorBO.Save(authorBO);
                 return PartialView("Partial/_AuthorPartialView", authorBO.LoadAll());
             }
             return PartialView("Partial/_CreatePartialView"); ;
         }
 
-        //[HttpPost]        //уже не исп-ся (переопред. Ajax.BeginForm из-за двойной отправки)
-        //public ActionResult Create(Authors author)
-        //{
-        //    using (Model1 db = new Model1())
-        //    {
-        //        if (ModelState.IsValid)
-        //        {
-        //            db.Authors.Add(author);
-        //            db.SaveChanges();
-        //        }
-        //        else return View(author);
-        //    }
-        //    return Redirect("Index");
-
-        //}
-
         public ActionResult Details(int? id)
         {
             if (id == null)
                 return new HttpStatusCodeResult(403);
-            ////var author = unitOfWork.Authors.GetById(id);
             var authorBO = DependencyResolver.Current.GetService<AuthorBO>();
             authorBO.Load(id.Value);
             
-            var authorVM = mapper.Map<AuthorViewModel>(authorBO);
+            var authorVM = mapper.Map<AuthorVM>(authorBO);
             return View(authorVM);
         }
-
+        //---------Edit ------------------------------------
         [HttpGet]
         public ActionResult Edit(int? id)
         {
             if (id == null)
                 return HttpNotFound();
-
-            //Authors author = unitOfWork.Authors.GetById(id);
+            
             var authorBO = DependencyResolver.Current.GetService<AuthorBO>();
             authorBO.Load(id.Value);
             if (authorBO != null)
             {
                 ViewBag.MsgError = "Yes, author is found!";
-                return new JsonResult
+                return new JsonResult   
                 {
                     Data = new ArrayList { authorBO, ViewBag.MsgError },
                     JsonRequestBehavior = JsonRequestBehavior.AllowGet
@@ -101,18 +72,15 @@ namespace WebLibrary.Controllers
             else
             {
                 ViewBag.MsgError = "No, author not found!";
-                return PartialView("Partial/AuthorPartialView", authorBO.LoadAll()); //unitOfWork.Authors.GetAll().ToList()
+                return PartialView("Partial/AuthorPartialView", authorBO.LoadAll()); 
             }
 
         }
         [HttpPost]
-        public ActionResult Edit(AuthorViewModel authorVM)
+        public ActionResult Edit(AuthorVM authorVM)
         {
             if (authorVM == null)
                 return HttpNotFound();
-
-            //unitOfWork.Authors.Update(author);
-            //unitOfWork.Authors.Save();
 
             var authorBO = mapper.Map<AuthorBO>(authorVM);
             authorBO.Save(authorBO);
@@ -123,13 +91,22 @@ namespace WebLibrary.Controllers
         {
             if (id == null)
                 return HttpNotFound();
-            
-            //unitOfWork.Authors.Delete(author.Id); 
-            //unitOfWork.Authors.Save(); 
-
             var authorBO = DependencyResolver.Current.GetService<AuthorBO>();
             authorBO.Load(id.Value);
-            authorBO.DeleteSave(authorBO);  //пока только для не имеющих книг (foreygn key!)
+            var booksOfAuthorBO = DependencyResolver.Current.GetService<BooksBO>().LoadAll().Where(b => b.AuthorsId == id).ToList();
+
+            var orderListBO = DependencyResolver.Current.GetService<OrderBookBO>().LoadAll().ToList();
+
+            foreach (var order in orderListBO) {
+                foreach (var book in booksOfAuthorBO) {
+                    if (order.Books.Id == book.Id) {
+                        order.DeleteSave(order);
+                    }
+                }
+            }
+
+            booksOfAuthorBO.ForEach(b => b.DeleteSave(b));// для не имеющих книги (foreygn key!)
+            authorBO.DeleteSave(authorBO);  
             return RedirectToAction("Index");
         }
     }

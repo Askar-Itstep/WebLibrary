@@ -1,9 +1,9 @@
-﻿@model WebLibrary.OrderBooks
-
+﻿@model WebLibrary.ViewModels.OrderBookVM
+@using WebLibrary.ViewModels
 @{
     ViewBag.Title = "Edit";
     Layout = "~/Views/Shared/_Layout.cshtml";
-    List<Books> list = ViewBag.OrderedBookList;
+    List<BookVM> list = (List<BookVM>)ViewBag.OrderedBookList;
 }
 
 <h2>Edit</h2>

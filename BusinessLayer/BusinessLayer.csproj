@@ -89,6 +89,12 @@
   <ItemGroup>
     <Compile Include="BusinessObject\AuthorBO.cs" />
     <Compile Include="BusinessObject\BaseBusinessObject.cs" />
+    <Compile Include="BusinessObject\BooksBO.cs" />
+    <Compile Include="BusinessObject\GenreBO.cs" />
+    <Compile Include="BusinessObject\ImageBO.cs" />
+    <Compile Include="BusinessObject\OrderBookBO.cs" />
+    <Compile Include="BusinessObject\StatisticBO.cs" />
+    <Compile Include="BusinessObject\UserBO.cs" />
     <Compile Include="Class1.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>

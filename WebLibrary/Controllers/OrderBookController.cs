@@ -1,27 +1,40 @@
-﻿using Newtonsoft.Json;
+﻿using AutoMapper;
+using BusinessLayer.BusinessObject;
+using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Web;
 using System.Web.Mvc;
 using WebLibrary.Repository;
+using WebLibrary.ViewModels;
 
 namespace WebLibrary.Controllers
 {
     public class OrderBookController : Controller
     {
         private UnitOfWork unitOfWork;
-        public OrderBookController()
+        private IMapper mapper;
+        public OrderBookController(IMapper mapper)
         {
+            this.mapper = mapper;
             unitOfWork = new UnitOfWork();
         }
         public ActionResult Index()
         {
-            ViewBag.UserList = new SelectList(unitOfWork.Users.GetAll().ToList(), "Id", "UserName");
-            ViewBag.BookList = new SelectList(unitOfWork.Books.GetAll().ToList(), "Id", "Title");
-            //List<OrderBooks> orders = db.OrderBooks.Include(nameof(Users)).Include(nameof(Books)).ToList();
-            var orders = unitOfWork.OrderBooks.GetAll();
-            return View(orders.ToList());
+            var ordersBO = DependencyResolver.Current.GetService<OrderBookBO>().LoadAll();
+            var ordersVM = mapper.Map<List<OrderBookVM>>(ordersBO);
+
+            var usersBO = DependencyResolver.Current.GetService<UserBO>().LoadAll();
+            var usersVM = usersBO.Select(u => mapper.Map<UserVM>(u));
+            ViewBag.UserList = new SelectList(usersVM.ToList(), "Id", "Username"); 
+                //ordersVM.ToList(), "Id", "Users.UserName");
+
+            var booksBO = DependencyResolver.Current.GetService<BooksBO>().LoadAll();
+            var booksVM = mapper.Map <List<BookVM>> (booksBO);
+            ViewBag.BookList = new SelectList(booksVM.ToList(), "Id", "Title");
+            
+            return View(ordersVM.ToList());
 
         }
 
@@ -30,56 +43,40 @@ namespace WebLibrary.Controllers
         {
             var userId = Request["UsersId"];
             var bookId = Request["BooksId"];
-            ViewBag.UserList = new SelectList(unitOfWork.Users.GetAll().ToList(), "Id", "UserName");
-            ViewBag.BookList = new SelectList(unitOfWork.Books.GetAll(), "Id", "Title");
+
+            var usersBO = DependencyResolver.Current.GetService<UserBO>().LoadAll();
+            var usersVM = mapper.Map<List<UserVM>>(usersBO);
+            ViewBag.UserList = new SelectList(usersVM.ToList(), "Id", "UserName");
+            var booksBO = DependencyResolver.Current.GetService<BooksBO>().LoadAll();
+            var booksVM = booksBO.Select(b => mapper.Map<BooksBO>(b));
+            ViewBag.BookList = new SelectList(booksVM, "Id", "Title");
+
             if (userId != null && bookId != null)
             {
-                var order = new OrderBooks();
+                var order = new OrderBookVM();
                 order.UsersId = int.Parse(userId);
                 order.BooksId = int.Parse(bookId);
-                unitOfWork.OrderBooks.Create(order);
-                unitOfWork.OrderBooks.Save();
-                return PartialView("Partial/_OrderPartialView", unitOfWork.OrderBooks.GetAll().ToList());
+
+                var orderBO = mapper.Map<OrderBookBO>(order);
+                orderBO.Save(orderBO);
+                var newOrdersBO = DependencyResolver.Current.GetService<OrderBookBO>().LoadAll();
+                var newOrdersVM = newOrdersBO.Select(o => mapper.Map<OrderBookVM>(o));
+                return PartialView("Partial/_OrderPartialView", newOrdersVM.ToList());
             }
             return PartialView("Partial/_CreatePartialView");
 
         }
-
-        //[HttpPost]          //уже не исп-ся (переопред. Ajax.BeginForm из-за двойной отправки)
-        //[ValidateAntiForgeryToken]
-        //public ActionResult Create(OrderBooks orderBook)  //
-        //{
-        //    if (orderBook == null)
-        //    {
-        //        return HttpNotFound();
-        //    }
-        //    using (Model1 db = new Model1())
-        //    {
-        //        ViewBag.UserList = new SelectList(db.Users.ToList(), "Id", "UsersName");
-        //        ViewBag.BookList = new SelectList(db.Books.ToList(), "Id", "Title");
-
-        //        if (ModelState.IsValid)
-        //        {
-        //            db.OrderBooks.Add(orderBook);
-        //            db.SaveChanges();           //Ajax.BeginForm - двойной клик или дребезг мыши??????
-        //            return PartialView("Partial/_OrderPartialView", db.OrderBooks.ToList());
-        //        }
-        //        return PartialView("Partial/_CreatePartialView");
-        //    }
-        //}
-
+        
         [HttpGet]
         public ActionResult GetTop5(int? userId)    //вызов из index/ajax
         {
-
-            List<Books> bookList = GetBooks(userId);
+            List<BookVM> bookList = GetBooks(userId);
             var data = JsonConvert.SerializeObject(bookList);
             return new JsonResult
             {
                 Data = data,
                 JsonRequestBehavior = JsonRequestBehavior.AllowGet
             };
-
         }
 
         [HttpGet]
@@ -89,38 +86,46 @@ namespace WebLibrary.Controllers
             {
                 return HttpNotFound();
             }
-            ViewBag.UserList = new SelectList(unitOfWork.Users.GetAll().ToList(), "Id", "UserName");
-            ViewBag.BookList = new SelectList(unitOfWork.Books.GetAll().ToList(), "Id", "Title");
+           var usersBO = DependencyResolver.Current.GetService<UserBO>().LoadAll();
+            var usersVM = usersBO.Select(u=>mapper.Map<UserVM>(u));
+            ViewBag.UserList = new SelectList(usersVM.ToList(), "Id", "UserName");
+            var booksBO = DependencyResolver.Current.GetService<BooksBO>().LoadAll();
+            var booksVM = booksBO.Select(b => mapper.Map<BooksBO>(b));
+            ViewBag.BookList = new SelectList(booksVM, "Id", "Title");
 
-            OrderBooks order = unitOfWork.OrderBooks.GetById(id);
-            List<Books> bookList = GetBooks(order.UsersId);
+            OrderBookBO orderBO = DependencyResolver.Current.GetService<OrderBookBO>().Load((int)id);
+            var order = mapper.Map<OrderBookVM>(orderBO);
+            List<BookVM> bookListBO = GetBooks(order.UsersId);
+            var bookList = bookListBO.Select(b => mapper.Map<BookVM>(b)).ToList();
             ViewBag.OrderedBookList = bookList; //исп-ся в _Top5Orders, включенный в Edit-page
             return View(order);
         }
 
 
-        private List<Books> GetBooks(int? userId)//-выбрать 5 книг текущ. юзера--
+        private List<BookVM> GetBooks(int? userId)//-выбрать 5 книг текущ. юзера--
         {
-            var orderBooks = unitOfWork.OrderBooks.GetAll().Where(o => o.UsersId == userId).Take(5).ToList();
-            List<Books> bookList = new List<Books>();
-            orderBooks.ForEach(order =>
+            var orderBooksBO = DependencyResolver.Current.GetService<OrderBookBO>().LoadAll().Where(o => o.UsersId == userId).Take(5).ToList();
+            List<BooksBO> bookListBO = new List<BooksBO>();
+            orderBooksBO.ForEach(order =>
             {
-                bookList.Add(unitOfWork.Books.GetAll().Where(b => b.Id == order.BooksId).FirstOrDefault());
+                bookListBO.Add(DependencyResolver.Current.GetService<BooksBO>().LoadAll()
+                    .Where(b => b.Id == order.BooksId).FirstOrDefault());
             });
+            var bookList = bookListBO.Select(b => mapper.Map<BookVM>(b)).ToList();
             return bookList;
 
         }
 
         [HttpPost]
-        public ActionResult Edit(OrderBooks orderBook)
+        public ActionResult Edit(OrderBookVM orderBook)
         {
             if (orderBook == null)
             {
                 return HttpNotFound();
             }
-
-            unitOfWork.OrderBooks.Update(orderBook);
-            unitOfWork.OrderBooks.Save();
+            
+            var orderBookBO = mapper.Map<OrderBookBO>(orderBook);
+            orderBookBO.Save(orderBookBO);
             return RedirectToAction("Index");
 
         }
@@ -132,14 +137,15 @@ namespace WebLibrary.Controllers
             {
                 return HttpNotFound();
             }
-            OrderBooks orderBook = unitOfWork.OrderBooks.GetById(id);
-            ViewBag.UserName = orderBook.Users.UserName;    //достат. 1-го обращения (virtual!)
-            ViewBag.BookTitle = orderBook.Books.Title;
-            return View(orderBook);
+            var orderBO = DependencyResolver.Current.GetService<OrderBookBO>().Load((int)id);
+            var orderBookVM = mapper.Map<OrderBookVM>(orderBO);
+            ViewBag.UserName = orderBookVM.Users.UserName;    //достат. 1-го обращения (virtual!)
+            ViewBag.BookTitle = orderBookVM.Books.Title;
+            return View(orderBookVM);
         }
 
         [HttpPost]
-        public ActionResult Delete(OrderBooks orderBook)
+        public ActionResult Delete(OrderBookVM orderBook)
         {
             if (orderBook == null)
             {
@@ -150,10 +156,8 @@ namespace WebLibrary.Controllers
             {
                 if (orderBook.BooksId == null || orderBook.UsersId == null)
                 {
-                    OrderBooks use = unitOfWork.OrderBooks.GetById(orderBook.Id);
-
-                    unitOfWork.OrderBooks.Delete(use.Id);
-                    unitOfWork.OrderBooks.Save();
+                    OrderBookBO orderBO = DependencyResolver.Current.GetService<OrderBookBO>().Load(orderBook.Id);
+                    orderBO.DeleteSave(orderBO);
                     return RedirectToAction("Index");
                 }
                 else return HttpNotFound();
@@ -169,10 +173,11 @@ namespace WebLibrary.Controllers
                 return HttpNotFound();
             }
 
-            OrderBooks orderBook = unitOfWork.OrderBooks.GetById(id);
-            var username = orderBook.Users.UserName;    //достат. 1-го обращения (virtual!)
-            var title = orderBook.Books.Title;
-            return View(orderBook);
+            OrderBookBO orderBO = DependencyResolver.Current.GetService<OrderBookBO>().Load((int)id);
+            var orderVM = mapper.Map<OrderBookVM>(orderBO);
+            var username = orderVM.Users.UserName;    //достат. 1-го обращения (virtual!)
+            var title = orderVM.Books.Title;
+            return View(orderVM);
 
         }
 

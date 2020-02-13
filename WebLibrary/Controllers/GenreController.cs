@@ -1,24 +1,26 @@
-﻿using System;
+﻿using AutoMapper;
+using BusinessLayer.BusinessObject;
 using System.Collections.Generic;
-using System.Data.Entity;
-using System.Linq;
-using System.Web;
 using System.Web.Mvc;
 using WebLibrary.Repository;
+using WebLibrary.ViewModels;
 
 namespace WebLibrary.Controllers
 {
     public class GenreController : Controller
     {
-        private UnitOfWork unitOfWork;
-        public GenreController()
+        //private UnitOfWork unitOfWork;
+        private IMapper mapper;
+        public GenreController(IMapper mapper)
         {
-            unitOfWork = new UnitOfWork();
+            //unitOfWork = new UnitOfWork();
+            this.mapper = mapper;
         }
         public ActionResult Index()
         {
-                List<Genres> genres = unitOfWork.Genres.GetAll().ToList();
-                return View(genres);
+            var genresBO = DependencyResolver.Current.GetService<GenreBO>().LoadAll();
+            var genres = mapper.Map<List<GenreVM>>(genresBO);
+            return View(genres);
         }
 
         [HttpGet]
@@ -27,59 +29,60 @@ namespace WebLibrary.Controllers
             return View();
         }
         [HttpPost]
-        public ActionResult Create(Genres genre)
+        public ActionResult Create(GenreVM genre)
         {
-            if (genre == null)
-                    return HttpNotFound();
+            if (genre == null) {
+                return HttpNotFound();
+            }
 
-           
-                if (ModelState.IsValid)
-                {
-                unitOfWork.Genres.Create(genre);
-                unitOfWork.Genres.Save();
-                    return RedirectToAction("Index");
-                }
-                else return View(genre);
-            
+            if (ModelState.IsValid) {
+                var genreBO = mapper.Map<GenreBO>(genre);
+                genreBO.Save(genreBO);
+                return RedirectToAction("Index");
+            }
+            else {
+                return View(genre);
+            }
         }
 
         [HttpGet]
         public ActionResult Edit(int? id)
         {
-            if (id == null)
+            if (id == null) {
                 return HttpNotFound();
-           
-                Genres genre = unitOfWork.Genres.GetById(id);
-                return View(genre);                       
+            }
+
+            GenreBO genre = DependencyResolver.Current.GetService<GenreBO>().Load((int)id);
+            var genreVM = mapper.Map<GenreVM>(genre);
+            return View(genreVM);
         }
         [HttpPost]
-        public ActionResult Edit(Genres genre)
+        public ActionResult Edit(GenreVM genre)
         {
-            if (genre == null)
+            if (genre == null) {
                 return HttpNotFound();
-            using(Model1 db = new Model1())
-            {
-                if (ModelState.IsValid)
-                {
-                    //db.Entry(genre).State = EntityState.Modified; //или так
-                    //db.SaveChanges();
-                    unitOfWork.Genres.Update(genre);
-                    unitOfWork.Genres.Save();
+            }
+
+            using (Model1 db = new Model1()) {
+                if (ModelState.IsValid) {
+                    var genreBO = mapper.Map<GenreBO>(genre);
+                    genreBO.Save(genreBO);
+                return RedirectToAction("Index");
                 }
-                else return View(genre);
-                return RedirectToAction("Index");                
+                else 
+                    return View(genre);
             }
         }
 
-        public ActionResult Delete(int id)
+        public ActionResult Delete(int? id)
         {
-            if (id == 0)
+            if (id == null) {
                 return HttpNotFound();
-           
-                Genres genre = unitOfWork.Genres.GetById(id);//db.Genres.Find(id);
-            unitOfWork.Genres.Delete(genre.Id);
-            unitOfWork.Genres.Save();
+            }
             
+            GenreBO genre = DependencyResolver.Current.GetService<GenreBO>().Load((int)id);
+            var genreBO = mapper.Map<GenreBO>(genre);
+            genreBO.DeleteSave(genreBO);
             return RedirectToAction("Index");
         }
     }

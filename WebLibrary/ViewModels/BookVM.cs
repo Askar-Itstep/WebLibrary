@@ -7,7 +7,7 @@ using System.Web;
 
 namespace WebLibrary.ViewModels
 {
-    public class BookViewModel
+    public class BookVM
     {
         public int Id { get; set; }
 

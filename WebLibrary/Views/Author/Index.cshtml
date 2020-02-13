@@ -1,12 +1,11 @@
 ﻿@using WebLibrary.ViewModels
 @*@model List<Authors>*@
-@model IEnumerable<WebLibrary.ViewModels.AuthorViewModel>
+@model IEnumerable<WebLibrary.ViewModels.AuthorVM>
 
 @{
     ViewBag.Title = "Index";
     Layout = "~/Views/Shared/_Layout.cshtml";
-    AuthorViewModel author = new AuthorViewModel();
-    //Authors author = new Authors();
+    AuthorVM author = new AuthorVM();
 }
 <script>
     $(document).ready(function () {
@@ -57,17 +56,11 @@
                     data: { id: authorId },
                     success: function (data) {
                         $('#modalEdit').modal('show');
-                        //console.log(data[0]["FirstName"])
-                        console.log(data[0]["AuthorName"])
+                        console.log(data)
+
                         $('#editAuthorId').val(data[0]["Id"])
-                        //$('#editFirstName').val(data[0]["FirstName"])
-                        //$('#editLastName').val(data[0]["LastName"])
-                        var responce = data[0]["AuthorName"];
-                        var firstName = responce.slice(0, responce.indexOf(' '))
-                        var lastName = responce.slice(responce.indexOf(' '))
-                        $('#editFirstName').val(firstName)
-                        $('#editLastName').val(lastName)
-                        console.log("authorName[1]: " + lastName)
+                        $('#editFirstName').val(data[0]["FirstName"])
+                        $('#editLastName').val(data[0]["LastName"])
                     },
                     error: function (e, msg) {
                         $('#hiddenError').text(msg[1]);
@@ -92,7 +85,6 @@
             </div>
             <div class="modal-body" id="modal-body">
                 @Html.Partial("Partial/_CreatePartialView", author)
-                @*@Html.Partial("Partial/_CreatePartialView", new Authors())*@
             </div>
         </div>
     </div>

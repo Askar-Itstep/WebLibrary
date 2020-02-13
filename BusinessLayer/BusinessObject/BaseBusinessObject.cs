@@ -12,9 +12,7 @@ namespace BusinessLayer.BusinessObject
     public class BaseBusinessObject
     {
         protected IMapper mapper;
-        UnitOfWorkFactory unitOfWorkFactory;
         protected UnitOfWork unitOfWork;
-        //public UnitOfWork uow { get; set; }
 
         public BaseBusinessObject(IMapper mapper, UnitOfWork unitOfWork)
         {

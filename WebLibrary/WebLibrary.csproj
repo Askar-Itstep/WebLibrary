@@ -169,8 +169,13 @@
     </Compile>
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Utils\MyHelpers.cs" />
-    <Compile Include="ViewModels\AuthorViewModel.cs" />
-    <Compile Include="ViewModels\BookViewModel.cs" />
+    <Compile Include="ViewModels\AuthorVM.cs" />
+    <Compile Include="ViewModels\BookVM.cs" />
+    <Compile Include="ViewModels\GenreVM.cs" />
+    <Compile Include="ViewModels\ImageVM.cs" />
+    <Compile Include="ViewModels\OrderBookVM.cs" />
+    <Compile Include="ViewModels\StatisticVM.cs" />
+    <Compile Include="ViewModels\UserVM.cs" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="Content\bootstrap-theme.css" />

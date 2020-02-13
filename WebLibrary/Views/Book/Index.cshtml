@@ -1,5 +1,7 @@
 ﻿@using WebLibrary.Utils
-@model List<Books>
+@using WebLibrary.ViewModels
+
+@model List<BookVM>
 @{
     ViewBag.Title = "Index";
     Layout = "~/Views/Shared/_Layout.cshtml";
@@ -91,29 +93,29 @@
     </thead>
     <tbody>
         @foreach (var item in Model) {
-        <tr class="myrow">
-            <td>@item.Id</td>
-            <td>@item.Title</td>
-            @{
-                if (item.Images != null) {
-                    <td>
-                        @Html.Raw("<img style='width:80px; height:60px;' src=\"data:image/jpeg;base64,"
-                                                + Convert.ToBase64String(item.Images.ImageData) + "\" />")
-                    </td>
+            <tr class="myrow">
+                <td>@item.Id</td>
+                <td>@item.Title</td>
+                @{
+                    if (item.Images != null) {
+                        <td>
+                            @Html.Raw("<img style='width:80px; height:60px;' src=\"data:image/jpeg;base64,"
+                                                    + Convert.ToBase64String(item.Images.ImageData) + "\" />")
+                        </td>
+                    }
                 }
-            }
 
-            <td>@item.Genres.Name</td>
-            <td>@item.Authors.LastName</td>
-            <td>@item.Price</td>
-            <td>@item.Pages</td>
-            @*<td><a href="#" class="read">Прочитавшие</a></td>*@
-            <td>|</td>
-            @*Edit*@
-            <td>@Html.ActionLink("Редактировать", "Create", new { id = item.Id })
-            <td>|</td>
-            <td>@Html.ActionLink("Удалить", "Delete", new { id = item.Id })</td>
-        </tr>
+                <td>@item.Genres.Name</td>
+                <td>@item.Authors.LastName</td>
+                <td>@item.Price</td>
+                <td>@item.Pages</td>
+                @*<td><a href="#" class="read">Прочитавшие</a></td>*@
+                <td>|</td>
+                @*Edit*@
+                <td>@Html.ActionLink("Редактировать", "Create", new { id = item.Id })
+                <td>|</td>
+                <td>@Html.ActionLink("Удалить", "Delete", new { id = item.Id })</td>
+            </tr>
 
         }
     </tbody>

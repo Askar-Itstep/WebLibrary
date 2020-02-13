@@ -43,9 +43,8 @@ namespace WebLibrary.Repository
 
         public IQueryable<T> Include(params string[] navigationProperty)
         {
-            var query = GetAll();   // dbSet.AsQueryable<T>();
+            var query = GetAll();  
             foreach (var item in navigationProperty)
-                //yield return dbSet.Include(item); //IEnumerable
                 query.Include(item);
             return query;
         }
@@ -60,11 +59,7 @@ namespace WebLibrary.Repository
             dbSet.Attach(item);
             db.Entry(item).State = EntityState.Modified;
         }
-        public void UpdateAttach(T item)
-        {
-            dbSet.Attach(item);
-            db.Entry(item).State = EntityState.Modified;
-        }
+      
         public IQueryable<T> GetAllNoTracking()
         {
             return dbSet.AsNoTracking();

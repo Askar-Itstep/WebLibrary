@@ -1,9 +1,9 @@
-﻿@model WebLibrary.Books
-
+﻿@model WebLibrary.ViewModels.BookVM
+@using WebLibrary.ViewModels
 @{
     ViewBag.Title = "SurveyPage";
     Layout = "~/Views/Shared/_Layout.cshtml";
-    List<Genres> genres = ViewBag.GenreList;
+    List<GenreVM> genres = ViewBag.GenreList;
 }
 <script>
     $(document).ready(function () {        

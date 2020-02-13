@@ -1,4 +1,4 @@
-﻿@model WebLibrary.Books
+﻿@model WebLibrary.ViewModels.BookVM
 
 @{
     ViewBag.Title = "Create";
@@ -34,7 +34,7 @@
         if (($('#headEdit').attr('data-type')) != undefined) {
             //console.log($('#headEdit').attr('data-type'));
 
-            $('#AuthorsId').val(@authorId);//как изменить?
+            $('#AuthorsId').val(@authorId);
             $('#GenresId').val(@genreId);
         }
 
@@ -49,7 +49,7 @@
             console.log(files)
             if (window.FormData !== undefined) {
                 var data = new FormData(document.forms[0]);
-                //console.log(data)
+                console.log(data)
                 for (var x = 0; x < files.length; x++) {
                     data.append("file" + x, files[x]);
                 }

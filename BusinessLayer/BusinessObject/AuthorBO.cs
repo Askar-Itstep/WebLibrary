@@ -15,7 +15,9 @@ namespace BusinessLayer.BusinessObject
         readonly IUnityContainer unityContainer;
 
         public int Id { get; set; }
-        public string AuthorName { get; set; }
+        public string FirstName { get; set; }
+
+        public string LastName { get; set; }
 
         public AuthorBO(IMapper mapper, UnitOfWork unitOfWork, IUnityContainer container)
             : base(mapper, unitOfWork)
@@ -25,8 +27,6 @@ namespace BusinessLayer.BusinessObject
         public IEnumerable<AuthorBO> LoadAll()  //из DataObj в BusinessObj
         {
             var authors = unitOfWork.Authors.GetAll();
-            ////mapper.Map<IEnumerable<Author>, List<AuthorBO>>(authors);
-            //authors.Select(a => mapper.Map<AuthorBO>(a)).ToList();
             var res = authors.AsEnumerable().Select(a => mapper.Map<AuthorBO>(a)).ToList();
             return res;
         }
@@ -39,7 +39,7 @@ namespace BusinessLayer.BusinessObject
         public void Save(AuthorBO authorBO)
         {
             var author = mapper.Map<Authors>(authorBO);
-            if (authorBO.Id == null) {
+            if (authorBO.Id == 0) {
                 Add(author);
             }
             else {
