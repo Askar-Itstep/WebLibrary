@@ -1,8 +1,11 @@
 ﻿ using AutoMapper;
 using BusinessLayer.BusinessObject;
+using Microsoft.WindowsAzure.Storage;
+using Microsoft.WindowsAzure.Storage.Blob;
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Configuration;
 using System.Data.Entity;
 using System.Linq;
 using System.Web;
@@ -23,9 +26,29 @@ namespace WebLibrary.Controllers
             var authorBO = DependencyResolver.Current.GetService<AuthorBO>();
             var authorBOList = authorBO.LoadAll();
             var viewModel = authorBOList.Select(a => mapper.Map<AuthorVM>(a));
+
+            UploadFile();
             return View(viewModel);
         }
+        public void UploadFile()
+        {
+            string path = @"C:\17.jpg";
+            string blobStorage = ConfigurationManager.ConnectionStrings["blob"].ConnectionString;
+            CloudStorageAccount storageAccount = CloudStorageAccount.Parse(blobStorage);
+            CloudBlobClient blobClient = storageAccount.CreateCloudBlobClient();
 
+            CloudBlobContainer blobContainer = blobClient.GetContainerReference("blobstorage");
+            blobContainer.CreateIfNotExists();
+
+            blobContainer.SetPermissions(
+                new BlobContainerPermissions { PublicAccess = BlobContainerPublicAccessType.Blob }
+                );
+            CloudBlockBlob blob = blobContainer.GetBlockBlobReference("test.jpg");
+            using (var file = System.IO.File.OpenRead(path))
+            {
+                blob.UploadFromStream(file);
+            }
+        }
         [HttpGet]
         public ActionResult Create()
         {

@@ -78,13 +78,9 @@
     <Compile Include="Entities\OrderBooks.cs" />
     <Compile Include="Entities\Statistic.cs" />
     <Compile Include="Entities\Users.cs" />
-    <Compile Include="Migrations\202001181052029_Second.cs" />
-    <Compile Include="Migrations\202001181052029_Second.Designer.cs">
-      <DependentUpon>202001181052029_Second.cs</DependentUpon>
-    </Compile>
-    <Compile Include="Migrations\202001181206383_AltImagesId.cs" />
-    <Compile Include="Migrations\202001181206383_AltImagesId.Designer.cs">
-      <DependentUpon>202001181206383_AltImagesId.cs</DependentUpon>
+    <Compile Include="Migrations\202002220535183_FirstTest.cs" />
+    <Compile Include="Migrations\202002220535183_FirstTest.designer.cs">
+      <DependentUpon>202002220535183_FirstTest.cs</DependentUpon>
     </Compile>
     <Compile Include="Migrations\Configuration.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
@@ -96,16 +92,13 @@
     <Compile Include="UnitOfWork\UnitOfWorkFactory.cs" />
   </ItemGroup>
   <ItemGroup>
-    <EmbeddedResource Include="Migrations\202001181052029_Second.resx">
-      <DependentUpon>202001181052029_Second.cs</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="Migrations\202001181206383_AltImagesId.resx">
-      <DependentUpon>202001181206383_AltImagesId.cs</DependentUpon>
-    </EmbeddedResource>
-  </ItemGroup>
-  <ItemGroup>
     <None Include="App.config" />
     <None Include="packages.config" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Migrations\202002220535183_FirstTest.resx">
+      <DependentUpon>202002220535183_FirstTest.cs</DependentUpon>
+    </EmbeddedResource>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">

@@ -84,7 +84,7 @@
         <h2 id="headEdit" data-type="edit" data-num1="authorEmptyId" data-num2="genreEmptyId">Edit</h2>
     }
 }
-@using (Html.BeginForm("Create", "Book", FormMethod.Post, new { enctype = "multypart/form-data" })) {
+@using (Html.BeginForm("Create", "Book", FormMethod.Post, new { enctype = "multipart/form-data" })) {
     @Html.AntiForgeryToken()
     <div class="form-horizontal">
         <h4>Books</h4>
