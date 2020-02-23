@@ -27,7 +27,7 @@ namespace WebLibrary.Controllers
             var authorBOList = authorBO.LoadAll();
             var viewModel = authorBOList.Select(a => mapper.Map<AuthorVM>(a));
 
-            UploadFile();
+            //UploadFile();
             return View(viewModel);
         }
         public void UploadFile()
