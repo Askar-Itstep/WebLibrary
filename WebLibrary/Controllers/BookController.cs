@@ -91,17 +91,16 @@ namespace WebLibrary.Controllers
             {                
                 if (bookVM.Id == 0) {   //Create
                     if (upload != null) { //with img
-                        imageBase = await SetImage(bookVM, upload, image, imageBase);
+                        imageBase = await SetImage(upload, image, imageBase);
                         bookBO.ImagesId = imageBase.Id;
                     }
                     else {
                         bookVM.Images = new Images { FileName = "", ImageData = new byte[1] { 0 } };
-                    }
-                    
+                    }                    
                 }
                 else {  //Update
                     if (upload != null) {   //with img
-                        imageBase = await SetImage(bookVM, upload, image, imageBase);
+                        imageBase = await SetImage(upload, image, imageBase);
                         bookBO.ImagesId = imageBase.Id;
                     }
                     else { 
@@ -117,7 +116,7 @@ namespace WebLibrary.Controllers
             //}
         }
 
-        private async Task<ImageBO> SetImage(BookVM book, HttpPostedFileBase upload, ImageVM image, ImageBO imageBase)
+        private async Task<ImageBO> SetImage(HttpPostedFileBase upload, ImageVM image, ImageBO imageBase)
         {
             string filename = System.IO.Path.GetFileName(upload.FileName);
             image.FileName = filename;

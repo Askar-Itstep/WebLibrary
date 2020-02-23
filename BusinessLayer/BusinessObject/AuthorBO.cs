@@ -26,7 +26,7 @@ namespace BusinessLayer.BusinessObject
         }
         public IEnumerable<AuthorBO> LoadAll()  //из DataObj в BusinessObj
         {
-            var authors = unitOfWork.Authors.GetAll();
+            var authors = unitOfWork.Authors.GetAll().ToList();
             var res = authors.AsEnumerable().Select(a => mapper.Map<AuthorBO>(a)).ToList();
             return res;
         }

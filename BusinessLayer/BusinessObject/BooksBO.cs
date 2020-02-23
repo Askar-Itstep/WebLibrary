@@ -37,7 +37,7 @@ namespace BusinessLayer.BusinessObject
         }
         public IEnumerable<BooksBO> LoadAll()  //из DataObj в BusinessObj
         {
-            var books = unitOfWork.Books.GetAll();
+            var books = unitOfWork.Books.GetAll().ToList();
             var res = books.AsEnumerable().Select(a => mapper.Map<BooksBO>(a)).ToList();
             return res;
         }
