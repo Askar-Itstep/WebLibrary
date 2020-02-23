@@ -3,10 +3,49 @@
     using System;
     using System.Data.Entity.Migrations;
     
-    public partial class Second : DbMigration
+    public partial class FirstTest : DbMigration
     {
         public override void Up()
         {
+            CreateTable(
+                "dbo.Authors",
+                c => new
+                    {
+                        Id = c.Int(nullable: false, identity: true),
+                        FirstName = c.String(nullable: false),
+                        LastName = c.String(),
+                    })
+                .PrimaryKey(t => t.Id);
+            
+            CreateTable(
+                "dbo.Books",
+                c => new
+                    {
+                        Id = c.Int(nullable: false, identity: true),
+                        Title = c.String(maxLength: 100),
+                        Price = c.Int(),
+                        AuthorsId = c.Int(),
+                        Pages = c.Int(),
+                        GenresId = c.Int(),
+                        ImagesId = c.Int(),
+                    })
+                .PrimaryKey(t => t.Id)
+                .ForeignKey("dbo.Authors", t => t.AuthorsId)
+                .ForeignKey("dbo.Genres", t => t.GenresId)
+                .ForeignKey("dbo.Images", t => t.ImagesId)
+                .Index(t => t.AuthorsId)
+                .Index(t => t.GenresId)
+                .Index(t => t.ImagesId);
+            
+            CreateTable(
+                "dbo.Genres",
+                c => new
+                    {
+                        Id = c.Int(nullable: false, identity: true),
+                        Name = c.String(maxLength: 50),
+                    })
+                .PrimaryKey(t => t.Id);
+            
             CreateTable(
                 "dbo.Images",
                 c => new
@@ -32,6 +71,15 @@
                 .Index(t => t.BooksId);
             
             CreateTable(
+                "dbo.Users",
+                c => new
+                    {
+                        Id = c.Int(nullable: false, identity: true),
+                        UserName = c.String(maxLength: 100),
+                    })
+                .PrimaryKey(t => t.Id);
+            
+            CreateTable(
                 "dbo.Statistics",
                 c => new
                     {
@@ -43,34 +91,10 @@
                     })
                 .PrimaryKey(t => t.Id);
             
-            AddColumn("dbo.Books", "AuthorsId", c => c.Int());
-            AddColumn("dbo.Books", "GenresId", c => c.Int());
-            AddColumn("dbo.Books", "ImagesId", c => c.Int(nullable: false));
-            CreateIndex("dbo.Books", "AuthorsId");
-            CreateIndex("dbo.Books", "GenresId");
-            CreateIndex("dbo.Books", "ImagesId");
-            AddForeignKey("dbo.Books", "AuthorsId", "dbo.Authors", "Id");
-            AddForeignKey("dbo.Books", "GenresId", "dbo.Genres", "Id");
-            AddForeignKey("dbo.Books", "ImagesId", "dbo.Images", "Id", cascadeDelete: true);
-            DropColumn("dbo.Books", "AuthorId");
-            DropColumn("dbo.Books", "GenreId");
-            DropTable("dbo.UseBooks");
         }
         
         public override void Down()
         {
-            CreateTable(
-                "dbo.UseBooks",
-                c => new
-                    {
-                        Id = c.Int(nullable: false, identity: true),
-                        UserId = c.Int(),
-                        BookId = c.Int(),
-                    })
-                .PrimaryKey(t => t.Id);
-            
-            AddColumn("dbo.Books", "GenreId", c => c.Int());
-            AddColumn("dbo.Books", "AuthorId", c => c.Int());
             DropForeignKey("dbo.OrderBooks", "UsersId", "dbo.Users");
             DropForeignKey("dbo.OrderBooks", "BooksId", "dbo.Books");
             DropForeignKey("dbo.Books", "ImagesId", "dbo.Images");
@@ -81,12 +105,13 @@
             DropIndex("dbo.Books", new[] { "ImagesId" });
             DropIndex("dbo.Books", new[] { "GenresId" });
             DropIndex("dbo.Books", new[] { "AuthorsId" });
-            DropColumn("dbo.Books", "ImagesId");
-            DropColumn("dbo.Books", "GenresId");
-            DropColumn("dbo.Books", "AuthorsId");
             DropTable("dbo.Statistics");
+            DropTable("dbo.Users");
             DropTable("dbo.OrderBooks");
             DropTable("dbo.Images");
+            DropTable("dbo.Genres");
+            DropTable("dbo.Books");
+            DropTable("dbo.Authors");
         }
     }
 }
