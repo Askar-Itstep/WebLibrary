@@ -4,9 +4,6 @@
 
 <table class="table">
     <tr>
-        @*<th>
-            @Html.DisplayNameFor(model => model.AuthorName)
-        </th>*@
         <th>
             @Html.DisplayNameFor(model => model.FirstName)
         </th>
@@ -18,9 +15,6 @@
 
     @foreach (var item in Model) {
     <tr class="trAuthorId" id="@item.Id">
-        @*<td>
-            @Html.DisplayFor(modelItem => item.AuthorName)
-        </td>*@
         <td>
             @Html.DisplayFor(modelItem => item.FirstName)
         </td>

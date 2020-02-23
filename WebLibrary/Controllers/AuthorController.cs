@@ -54,12 +54,13 @@ namespace WebLibrary.Controllers
         {
             var firstName = Request["FirstName"];
             var lastName = Request["LastName"];
-            
-            var authorName = Request.Form["AuthorName"];
-            if(authorName != null) {
-                var authorBO = DependencyResolver.Current.GetService<AuthorBO>();
+            var authorVM = new AuthorVM { FirstName = firstName, LastName = lastName };
+            if(firstName != null) {
+                var authorBO = mapper.Map<AuthorBO>(authorVM);
                 authorBO.Save(authorBO);
-                return PartialView("Partial/_AuthorPartialView", authorBO.LoadAll());
+                var authorsBO = DependencyResolver.Current.GetService<AuthorBO>().LoadAll().ToList();
+                var authorsVM = mapper.Map<List<AuthorVM>>(authorsBO);
+                return PartialView("Partial/_AuthorPartialView", authorsVM);
             }
             return PartialView("Partial/_CreatePartialView"); ;
         }
