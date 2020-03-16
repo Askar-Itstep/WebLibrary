@@ -60,11 +60,7 @@ namespace WebLibrary.Repository
             dbSet.Attach(item);
             db.Entry(item).State = EntityState.Modified;
         }
-        public void UpdateAttach(T item)
-        {
-            dbSet.Attach(item);
-            db.Entry(item).State = EntityState.Modified;
-        }
+       
         public IQueryable<T> GetAllNoTracking()
         {
             return dbSet.AsNoTracking();

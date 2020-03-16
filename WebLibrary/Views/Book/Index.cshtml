@@ -23,10 +23,11 @@
                 }
             });
         });
-        //------------to PreCreate (No ViewBag - No SelectList!) -------------------------------
+        //---------for Create---to PreCreate (No ViewBag - No SelectList!) -------------------------------
         $('#createBookLink').on('click', function (e) {
             LoadAuthorsGenres(e, false)
         });
+        //----------for Edit ->to PreCreate-------------------------------------------
         $('#editBookLink').click((e) => LoadAuthorsGenres(e))
         //----------------------------------------------------------------
         function LoadAuthorsGenres(e, flag) {

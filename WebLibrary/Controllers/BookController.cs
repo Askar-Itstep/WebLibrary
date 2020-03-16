@@ -118,7 +118,6 @@ namespace WebLibrary.Controllers
                         book.ImagesId = unitOfWork.Images.GetById(imagesIdTempBook).Id;
                     }
                     unitOfWork.Books.Update(book);
-                    //unitOfWork.Books.UpdateAttach(book);
                 }
 
                 unitOfWork.Books.Save(); //db.SaveChanges();
