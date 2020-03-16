@@ -20,7 +20,7 @@ namespace WebLibrary.Controllers
     public class BookController : Controller
     {
         public static List<StatisticVM> Statistics { get; set; }
-        
+
         IMapper mapper;
         public BookController(IMapper mapper)
         {
@@ -29,9 +29,8 @@ namespace WebLibrary.Controllers
 
         public ActionResult UsersReadThisBook(int? id)
         {
-            using (Model1 db = new Model1())
-            {
-                var ordersBO = DependencyResolver.Current.GetService<OrderBookBO>().LoadAll().Where(o=>o.BooksId==id);
+            using (Model1 db = new Model1()) {
+                var ordersBO = DependencyResolver.Current.GetService<OrderBookBO>().LoadAll().Where(o => o.BooksId == id);
                 var ordersVM = mapper.Map<List<OrderBookVM>>(ordersBO);
                 var userList = ordersVM.Select(o => o.Users).ToList();
                 ViewBag.Book = db.Books.Find(id).Title;
@@ -41,8 +40,7 @@ namespace WebLibrary.Controllers
 
         public ActionResult Index()
         {
-            using (Model1 db = new Model1())
-            {
+            using (Model1 db = new Model1()) {
                 var books = DependencyResolver.Current.GetService<BooksBO>().LoadAll().ToList();    //virtual!
                 var booksVM = books.Select(b => mapper.Map<BookVM>(b)).ToList();
                 return View(booksVM);
@@ -52,29 +50,28 @@ namespace WebLibrary.Controllers
         [HttpGet]   //заполнен. select'ов в Create без ViewBag.SelectList
         public ActionResult PreCreate() //переход по ссылке IndexPage ->PreCreate-> IndexPage -> CreatePage ..
         {
-            using (Model1 db = new Model1())
+
+            var authorList = DependencyResolver.Current.GetService<AuthorBO>().LoadAll().ToList();
+            var authorListVM = mapper.Map<List<AuthorVM>>(authorList);
+
+            var genreList = DependencyResolver.Current.GetService<GenreBO>().LoadAll().ToList();
+            var genreListVM = mapper.Map<List<GenreVM>>(genreList);
+
+            var dataList = new ArrayList(authorListVM);
+            dataList.AddRange(genreList);
+
+            //var json = JsonConvert.SerializeObject(dataList);
+            return new JsonResult
             {
-                var authorList = DependencyResolver.Current.GetService<AuthorBO>().LoadAll().ToList();
-                var authorListVM = mapper.Map<List<AuthorVM>>(authorList);
+                Data = dataList,    //json,
+                JsonRequestBehavior = JsonRequestBehavior.AllowGet
+            };
 
-                var genreList = DependencyResolver.Current.GetService<GenreBO>().LoadAll().ToList();
-                var genreListVM = mapper.Map<List<GenreVM>>(genreList);
-
-                var dataList = new ArrayList(authorListVM);
-                dataList.AddRange(genreList);
-
-                var json = JsonConvert.SerializeObject(dataList);
-                return new JsonResult
-                {
-                    Data = dataList,    //json,
-                    JsonRequestBehavior = JsonRequestBehavior.AllowGet
-                };
-            }
         }
         [HttpGet]//+Edit!
         public ActionResult Create(int? id)
         {
-            if(id != null) {
+            if (id != null) {
                 var bookBO = DependencyResolver.Current.GetService<BooksBO>().Load((int)id);
                 var bookVM = mapper.Map<BookVM>(bookBO);
                 return View(bookVM);
@@ -87,8 +84,7 @@ namespace WebLibrary.Controllers
             ImageVM image = DependencyResolver.Current.GetService<ImageVM>();
             ImageBO imageBase = DependencyResolver.Current.GetService<ImageBO>();
             var bookBO = mapper.Map<BooksBO>(bookVM);
-            if (ModelState.IsValid)
-            {                
+            if (ModelState.IsValid) {
                 if (bookVM.Id == 0) {   //Create
                     if (upload != null) { //with img
                         imageBase = await SetImage(upload, image, imageBase);
@@ -96,24 +92,24 @@ namespace WebLibrary.Controllers
                     }
                     else {
                         bookVM.Images = new Images { FileName = "", ImageData = new byte[1] { 0 } };
-                    }                    
+                    }
                 }
                 else {  //Update
                     if (upload != null) {   //with img
                         imageBase = await SetImage(upload, image, imageBase);
                         bookBO.ImagesId = imageBase.Id;
                     }
-                    else { 
+                    else {
                         var tempBookBO = DependencyResolver.Current.GetService<BooksBO>().Load(bookVM.Id);
                         int imagesIdTempBook = (int)tempBookBO.ImagesId;
                         bookBO.ImagesId = DependencyResolver.Current.GetService<ImageBO>().Load(imagesIdTempBook).Id;
                     }
-                }               
-                bookBO.Save(bookBO); 
+                }
+                bookBO.Save(bookBO);
                 return new JsonResult { Data = "Данные записаны", JsonRequestBehavior = JsonRequestBehavior.AllowGet };
             }
             else return View(bookVM);
-            //}
+
         }
 
         private async Task<ImageBO> SetImage(HttpPostedFileBase upload, ImageVM image, ImageBO imageBase)
@@ -153,8 +149,7 @@ namespace WebLibrary.Controllers
         [HttpPost]
         public ActionResult SurveyPage(BookVM book)
         {
-            if (Request.Form.Count != 0)
-            {
+            if (Request.Form.Count != 0) {
                 StatisticVM statistic = new StatisticVM();
                 int authorId = 0;
                 string title = "";
@@ -164,8 +159,8 @@ namespace WebLibrary.Controllers
                 HandlerForm(statistic, ref authorId, ref title, ref genreId, ref isImageString, ref isImage);
                 var statisticBO = mapper.Map<StatisticBO>(statistic);
                 statisticBO.Save(statisticBO);
-               
-                 //----------------Seach------------------------                  
+
+                //----------------Seach------------------------                  
                 ArrayList bigList = GetRequestBooks(authorId, title, genreId, isImage);
                 var data = JsonConvert.SerializeObject(bigList);   //
                 return new JsonResult
@@ -180,31 +175,24 @@ namespace WebLibrary.Controllers
         }
         private void HandlerForm(StatisticVM statistic, ref int authorId, ref string title, ref int genreId, ref string isImageString, ref bool isImage)
         {
-            foreach (string item in Request.Form.Keys)
-            {
+            foreach (string item in Request.Form.Keys) {
                 var value = Request.Form[item];
-                if (value != null && value != "")
-                {
-                    if (item == "AuthorsId" && value != "0")
-                    {
+                if (value != null && value != "") {
+                    if (item == "AuthorsId" && value != "0") {
                         statistic.CountAuthorChoice++;
                         authorId = int.Parse(value);
                     }
-                    else if (item == "Genres")
-                    {
+                    else if (item == "Genres") {
                         statistic.CountGenreChoice++;
                         genreId = int.Parse(value);
                     }
-                    else if (item == "Title")
-                    {
+                    else if (item == "Title") {
                         statistic.CountTitleChoice++;
                         title = value;
                     }
-                    else if (item == "IsImage")
-                    {
+                    else if (item == "IsImage") {
                         isImageString = value;
-                        if (isImageString.Contains("true"))
-                        {
+                        if (isImageString.Contains("true")) {
                             statistic.CountIsImageChoice++;
                             isImage = true;
                         }
@@ -278,7 +266,7 @@ namespace WebLibrary.Controllers
                 return HttpNotFound();
             var bookBO = DependencyResolver.Current.GetService<BooksBO>().Load((int)id);
             var bookVM = mapper.Map<BookVM>(bookBO);
-            return View(bookVM);           
+            return View(bookVM);
         }
 
         [HttpPost]
@@ -289,7 +277,7 @@ namespace WebLibrary.Controllers
             var bookBO = mapper.Map<BooksBO>(book);
             var orderListBO = DependencyResolver.Current.GetService<OrderBookBO>().LoadAll().Where(o => o.BooksId == bookBO.Id).ToList();
             orderListBO.ForEach(o => o.DeleteSave(o));
-            bookBO.DeleteSave(bookBO);  
+            bookBO.DeleteSave(bookBO);
             return RedirectToAction("Index");
         }
     }

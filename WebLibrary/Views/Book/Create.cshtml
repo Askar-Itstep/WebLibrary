@@ -7,8 +7,8 @@
     var authorId = 1;
     var genreId = 1;
     if (Model != null) {
-        authorId = (int)Model.AuthorsId;
-        genreId = (int)Model.GenresId;
+       // authorId = (int)Model.AuthorsId;
+       // genreId = (int)Model.GenresId;
     }
 }
 <script>
@@ -43,10 +43,13 @@
                         fillOptionsGenres(genre)
                     }
                 })
+            },
+            error: function (xhr, status) {
+                alert("Ошибка создания: " +status)
             }
         })
 
-        //-------------Upload Files ---------------------------
+        //------------Edit + Upload Files ---------------------------
         var myForm = document.forms[0];
         $('input[type=submit').on('click', function (e) {
             $(this).attr("disabled", "disabled");
@@ -72,8 +75,8 @@
                         $(location).attr('href', '/Book/Index');
                     },
                     error: function (xhr, status) {
-                        alert(status);
-                        $('input[type=submit').attr("disabled", "disabled");
+                        alert("Ошибка редактирования: " + status);
+                        $('input[type=submit]').attr("disabled", "disabled");
                     }
                 });
             } else {
