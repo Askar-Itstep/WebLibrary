@@ -29,12 +29,10 @@ namespace WebLibrary.Controllers
         public ActionResult UsersReadThisBook(int? id)//замена -для возвр. PartView
         {
             UserList = new List<Users>();
-            using (Model1 db = new Model1())
-            {
+            using (Model1 db = new Model1()) {
 
                 //var orders = db.OrderBooks            //выбрать все заказы этой книги
-                //    //.Include(o => o.Users).Include(o => o.Books)
-                //    .Where(o => o.BooksId == id).ToList();
+                 //.Include(o => o.Users).Include(o => o.Books).Where(o => o.BooksId == id).ToList();
                 var orders = unitOfWork.OrderBooks.GetAll().Where(o => o.BooksId == id);
                 UserList = orders.Select(o => o.Users).ToList();    //а из них пользователей
 
@@ -45,8 +43,7 @@ namespace WebLibrary.Controllers
 
         public ActionResult Index()
         {
-            using (Model1 db = new Model1())
-            {
+            using (Model1 db = new Model1()) {
                 //var books = db.Books.Include(b => b.Authors).Include(b => b.Genres).Include(b => b.Images).ToList();
                 var books = unitOfWork.Books.Include("Authors", "Genres", "Images").ToList();
                 return View(books);
@@ -54,31 +51,43 @@ namespace WebLibrary.Controllers
         }
         //==================================== Create ================================
         [HttpGet]   //No ViewBag - No SelectList!
-        public ActionResult PreCreate() //Index-view ->this-> Index-view-> Create-view..
+        public ActionResult PreCreate(int? id) //out Index.html ->PreCreate()-> Index.html (success)-> Create()
         {
-            using (Model1 db = new Model1())
-            {
-                var authorList = unitOfWork.Authors.GetAll().ToList();//db.Authors.ToList();
-                var genreList = unitOfWork.Genres.GetAll().ToList();//db.Genres.ToList();
-                var arrayList = new ArrayList(authorList);
-                arrayList.AddRange(genreList);
+            //using (Model1 db = new Model1()){}
+            var authorList = unitOfWork.Authors.GetAll().ToList();//db.Authors.ToList();
+            var genreList = unitOfWork.Genres.GetAll().ToList();//db.Genres.ToList();
+            var arrayList = new ArrayList(authorList);
+            arrayList.AddRange(genreList);
 
-                var json = JsonConvert.SerializeObject(arrayList);
+            if(id != null) {
+                var book = unitOfWork.Books.GetById(id);    //int.Parse(id)
+                var obj = new { id = book.Id, title = book.Title, pages = book.Pages, price = book.Price };
+                arrayList.Add(obj);
                 return new JsonResult
                 {
-                    Data = json,
+                    Data = arrayList,
                     JsonRequestBehavior = JsonRequestBehavior.AllowGet
                 };
             }
+            //var json = JsonConvert.SerializeObject(arrayList);
+            return new JsonResult
+            {
+                Data = arrayList,           //json - Не нужен
+                JsonRequestBehavior = JsonRequestBehavior.AllowGet
+            };
+            
         }
         [HttpGet]
-        public ActionResult Create(int? id)
+        public ActionResult Create(int? id)//+Edit
         {
-            if(id != null) {
-                var book = unitOfWork.Books.GetById(id);
+            if (id != null) {
+                 var book = unitOfWork.Books.GetById(id);
+                //ViewBag.AuthorList = new SelectList(unitOfWork.Authors.GetAll().ToList(), "Id", "LastName");
+                //ViewBag.GenreList = new SelectList(unitOfWork.Genres.GetAll().ToList(), "Id", "Name");
+                //ViewBag.ImageBook = unitOfWork.Images.GetAll().Where(i => i.Id == book.ImagesId).FirstOrDefault();
+                //ViewBag.Images = new SelectList(unitOfWork.Images.GetAll().ToList(), "Id", "FileName");
                 return View(book);
             }
-            //ViewBag.EmptyBook = new Books { AuthorsId = 0, GenresId = 0 };
             return View();
         }
         //[HttpPost]    //отдельн. загруз. файла - не используется 
@@ -94,15 +103,14 @@ namespace WebLibrary.Controllers
         //    }
         //    return RedirectToAction("Index");
         //}
-        [HttpPost]  //+Edit!
-        public async Task<ActionResult> Create(Books book, HttpPostedFileBase upload)
+        [HttpPost]
+        public async Task<ActionResult> Create(Books book, HttpPostedFileBase upload)//+Edit
         {
             //var form = Request.Form["upload"];
             //var myfile = Request.Files;
             Images image = new Images();
             Images imageBase = new Images();
-            if (ModelState.IsValid)
-            {                
+            if (ModelState.IsValid) {
                 if (book.Id == 0) {
                     if (upload != null) {
                         imageBase = await SetImage(book, upload, image, imageBase);
@@ -118,7 +126,7 @@ namespace WebLibrary.Controllers
                     }
                     else {
                         var allBooks = await unitOfWork.Books.GetAllNoTracking().ToListAsync(); //
-                                                                                      //.GetById(book.Id);
+                                                                                                //.GetById(book.Id);
                         var tempBook = allBooks.Where(b => b.Id == book.Id).FirstOrDefault();
                         int imagesIdTempBook = (int)tempBook.ImagesId;
                         book.ImagesId = unitOfWork.Images.GetById(imagesIdTempBook).Id;
@@ -126,7 +134,7 @@ namespace WebLibrary.Controllers
                     unitOfWork.Books.Update(book);
                     //unitOfWork.Books.UpdateAttach(book);
                 }
-               
+
                 unitOfWork.Books.Save(); //db.SaveChanges();
                 return new JsonResult { Data = "Данные записаны", JsonRequestBehavior = JsonRequestBehavior.AllowGet };
             }
@@ -214,8 +222,7 @@ namespace WebLibrary.Controllers
         [HttpPost]
         public ActionResult SurveyPage(Books book)
         {
-            if (Request.Form.Count != 0)
-            {
+            if (Request.Form.Count != 0) {
                 Statistic statistic = new Statistic();
                 int authorId = 0;
                 string title = "";
@@ -244,31 +251,24 @@ namespace WebLibrary.Controllers
         }
         private void HandlerForm(Statistic statistic, ref int authorId, ref string title, ref int genreId, ref string isImageString, ref bool isImage)
         {
-            foreach (string item in Request.Form.Keys)
-            {
+            foreach (string item in Request.Form.Keys) {
                 var value = Request.Form[item];
-                if (value != null && value != "")
-                {
-                    if (item == "AuthorsId" && value != "0")
-                    {
+                if (value != null && value != "") {
+                    if (item == "AuthorsId" && value != "0") {
                         statistic.CountAuthorChoice++;
                         authorId = int.Parse(value);
                     }
-                    else if (item == "Genres")
-                    {
+                    else if (item == "Genres") {
                         statistic.CountGenreChoice++;
                         genreId = int.Parse(value);
                     }
-                    else if (item == "Title")
-                    {
+                    else if (item == "Title") {
                         statistic.CountTitleChoice++;
                         title = value;
                     }
-                    else if (item == "IsImage")
-                    {
+                    else if (item == "IsImage") {
                         isImageString = value;
-                        if (isImageString.Contains("true"))
-                        {
+                        if (isImageString.Contains("true")) {
                             statistic.CountIsImageChoice++;
                             isImage = true;
                         }
@@ -337,9 +337,9 @@ namespace WebLibrary.Controllers
             if (id == null)
                 return HttpNotFound();
 
-                Books book = unitOfWork.Books.GetById(id);
-                return View(book);
-           
+            Books book = unitOfWork.Books.GetById(id);
+            return View(book);
+
         }
 
         [HttpPost]
