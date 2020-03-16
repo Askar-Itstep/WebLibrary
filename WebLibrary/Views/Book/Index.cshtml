@@ -7,7 +7,7 @@
 }
 <script>
     $(document).ready(function () {
-            //----------2)клик по строке------------
+            //----------клик по строке------------
         $('.myrow').on("click", function (e) {    //работ. (исправл.)
             e.stopPropagation();
             var id = $(this).children(':first').text();
@@ -34,14 +34,13 @@
             console.log(flag)
             console.log("PreCreate Book!")
             var data = $('#tdItemId').html()
-            //console.log(data)
             $.ajax({
                 method: "GET",
                 url: "/Book/PreCreate/",
                 data: { id:data },
                 success: function (data) {
                     console.log(data)
-                    //var result = JSON.parse(data);
+                    //var result = JSON.parse(data);    //NewtonJson - no use
                     //console.log(result)
 
                     $(data).each(function (i, item) {
@@ -55,20 +54,10 @@
                             var genre = new Genre(item["Id"], item["Name"])
                             genres.push(genre)
                         }
-                        //if (item.id != undefined)
-                        //    book = { id: item.id }  
-                        //if (item.title != undefined) 
-                        //    book.title = item.title                         
-                        //if (item.pages != undefined)
-                        //    book.pages = item.pages
-                        //if (item.price != undefined)
-                        //    book.price = item.price
                     })
                     localStorage.clear();
                     localStorage.setItem("authors", JSON.stringify(authors));
                     localStorage.setItem("genres", JSON.stringify(genres));
-                    //if (book != null && book != undefined && flag == undefined) 
-                    //    localStorage.setItem("book", JSON.stringify(book))
                                         
                     $(location).attr('href', '/Book/Create')    //to Create
                 },
@@ -80,7 +69,6 @@
         //------------------------------------------------------------
         var authors = []
         var genres = []
-        var book;
         class Author {
             constructor(Id, FirstName, LastName) {
                 this.Id = Id, this.FirstName = FirstName, this.LastName = LastName
@@ -127,7 +115,7 @@
             <td>@item.Pages</td>
             <td>|</td>
             
-            <td>@Html.ActionLink("Редактировать", "Create", new { id = item.Id, title = item.Title, pages = item.Pages, price = item.Price })
+            <td>@Html.ActionLink("Редактировать", "Create", new { id = item.Id })
             <td>@*@Html.ActionLink("Редактировать", "PreCreate", new { id = item.Id }, new { id = "editBookLink" })*@
 
             <td>|</td>

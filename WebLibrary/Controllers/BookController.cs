@@ -51,7 +51,7 @@ namespace WebLibrary.Controllers
         }
         //==================================== Create ================================
         [HttpGet]   //No ViewBag - No SelectList!
-        public ActionResult PreCreate(int? id) //out Index.html ->PreCreate()-> Index.html (success)-> Create()
+        public ActionResult PreCreate() //out Index.html ->PreCreate()-> Index.html (success)-> Create()
         {
             //using (Model1 db = new Model1()){}
             var authorList = unitOfWork.Authors.GetAll().ToList();//db.Authors.ToList();
@@ -59,33 +59,19 @@ namespace WebLibrary.Controllers
             var arrayList = new ArrayList(authorList);
             arrayList.AddRange(genreList);
 
-            if(id != null) {
-                var book = unitOfWork.Books.GetById(id);    //int.Parse(id)
-                var obj = new { id = book.Id, title = book.Title, pages = book.Pages, price = book.Price };
-                arrayList.Add(obj);
-                return new JsonResult
-                {
-                    Data = arrayList,
-                    JsonRequestBehavior = JsonRequestBehavior.AllowGet
-                };
-            }
             //var json = JsonConvert.SerializeObject(arrayList);
             return new JsonResult
             {
-                Data = arrayList,           //json - Не нужен
+                Data = arrayList,           
                 JsonRequestBehavior = JsonRequestBehavior.AllowGet
             };
             
         }
         [HttpGet]
-        public ActionResult Create(int? id)//+Edit
+        public ActionResult Create(int? id)//id for Edit
         {
             if (id != null) {
                  var book = unitOfWork.Books.GetById(id);
-                //ViewBag.AuthorList = new SelectList(unitOfWork.Authors.GetAll().ToList(), "Id", "LastName");
-                //ViewBag.GenreList = new SelectList(unitOfWork.Genres.GetAll().ToList(), "Id", "Name");
-                //ViewBag.ImageBook = unitOfWork.Images.GetAll().Where(i => i.Id == book.ImagesId).FirstOrDefault();
-                //ViewBag.Images = new SelectList(unitOfWork.Images.GetAll().ToList(), "Id", "FileName");
                 return View(book);
             }
             return View();
