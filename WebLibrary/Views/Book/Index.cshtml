@@ -1,7 +1,5 @@
 ﻿@using WebLibrary.Utils
-@using WebLibrary.ViewModels
-
-@model List<BookVM>
+@model List<Books>
 @{
     ViewBag.Title = "Index";
     Layout = "~/Views/Shared/_Layout.cshtml";
@@ -9,7 +7,7 @@
 }
 <script>
     $(document).ready(function () {
-            //----------2)клик по строке------------
+            //----------клик по строке------------
         $('.myrow').on("click", function (e) {    //работ. (исправл.)
             e.stopPropagation();
             var id = $(this).children(':first').text();
@@ -24,45 +22,51 @@
                     console.log("error")
                 }
             });
-                //--------3)клик по ссылке--------
-            @*$('.read').on("click", function (e) {
-                var id = $(this).parent().parent().children(':first').text();
-                e.preventDefault();
-               $('#myResult').load('@Url.Action("_UsersReadThisBook/", "Book")?id='+id)*@
         });
         //------------to PreCreate (No ViewBag - No SelectList!) -------------------------------
         $('#createBookLink').on('click', function (e) {
-            e.preventDefault();
-            console.log("Create Book!")
-            var data;
+            LoadAuthorsGenres(e, false)
+        });
+        $('#editBookLink').click((e) => LoadAuthorsGenres(e))
+        //----------------------------------------------------------------
+        function LoadAuthorsGenres(e, flag) {
+            e.preventDefault()
+            console.log(flag)
+            console.log("PreCreate Book!")
+            var data = $('#tdItemId').html()
             $.ajax({
-                dataType: "json",
                 method: "GET",
-                url: "/Book/PreCreate",
-                data: data,
+                url: "/Book/PreCreate/",
+                data: { id:data },
                 success: function (data) {
-                    var result = JSON.parse(data);
-                    $(result).each(function (i, item) {
+                    console.log(data)
+                    //var result = JSON.parse(data);    //NewtonJson - no use
+                    //console.log(result)
+
+                    $(data).each(function (i, item) {
+
                         if (item["FirstName"] != undefined) {
                             var author = new Author(item["Id"], item["FirstName"], item["LastName"])
                             authors.push(author)
+
                         }
-                        else if (item["Name"] != undefined) {
+                        if (item["Name"] != undefined) {
                             var genre = new Genre(item["Id"], item["Name"])
                             genres.push(genre)
                         }
                     })
-                    //console.log(genres)
                     localStorage.clear();
                     localStorage.setItem("authors", JSON.stringify(authors));
                     localStorage.setItem("genres", JSON.stringify(genres));
-                    $(location).attr('href', '/Book/Create')    //переход to Create(остаток кода там)
+                                        
+                    $(location).attr('href', '/Book/Create')    //to Create
                 },
                 error: function (xhr, status, p3) {
                     alert(xhr.responseText);
                 }
             })
-        });
+        }
+        //------------------------------------------------------------
         var authors = []
         var genres = []
         class Author {
@@ -93,29 +97,30 @@
     </thead>
     <tbody>
         @foreach (var item in Model) {
-            <tr class="myrow">
-                <td>@item.Id</td>
-                <td>@item.Title</td>
-                @{
-                    if (item.Images != null) {
-                        <td>
-                            @Html.Raw("<img style='width:80px; height:60px;' src=\"data:image/jpeg;base64,"
-                                                    + Convert.ToBase64String(item.Images.ImageData) + "\" />")
-                        </td>
-                    }
+        <tr class="myrow">
+            <td id="tdItemId">@item.Id</td>
+            <td>@item.Title</td>
+            @{
+                if (item.Images != null) {
+                    <td>
+                        @Html.Raw("<img style='width:80px; height:60px;' src=\"data:image/jpeg;base64,"
+                                                + Convert.ToBase64String(item.Images.ImageData) + "\" />")
+                    </td>
                 }
+            }
 
-                <td>@item.Genres.Name</td>
-                <td>@item.Authors.LastName</td>
-                <td>@item.Price</td>
-                <td>@item.Pages</td>
-                @*<td><a href="#" class="read">Прочитавшие</a></td>*@
-                <td>|</td>
-                @*Edit*@
-                <td>@Html.ActionLink("Редактировать", "Create", new { id = item.Id })
-                <td>|</td>
-                <td>@Html.ActionLink("Удалить", "Delete", new { id = item.Id })</td>
-            </tr>
+            <td>@item.Genres.Name</td>
+            <td>@item.Authors.LastName</td>
+            <td>@item.Price</td>
+            <td>@item.Pages</td>
+            <td>|</td>
+            
+            <td>@Html.ActionLink("Редактировать", "Create", new { id = item.Id })
+            <td>@*@Html.ActionLink("Редактировать", "PreCreate", new { id = item.Id }, new { id = "editBookLink" })*@
+
+            <td>|</td>
+            <td>@Html.ActionLink("Удалить", "Delete", new { id = item.Id })</td>
+        </tr>
 
         }
     </tbody>

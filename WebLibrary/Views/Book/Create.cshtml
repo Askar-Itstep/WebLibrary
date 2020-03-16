@@ -1,10 +1,10 @@
-﻿@model WebLibrary.ViewModels.BookVM
+﻿@model WebLibrary.Books
 
 @{
     ViewBag.Title = "Create";
     Layout = "~/Views/Shared/_Layout.cshtml";
-    var authorId = 0;
-    var genreId = 0;
+    var authorId = 1;
+    var genreId = 1;
     if (Model != null) {
         authorId = (int)Model.AuthorsId;
         genreId = (int)Model.GenresId;
@@ -12,33 +12,40 @@
 }
 <script>
     $(document).ready(function () {
-        //--------Получение авторов и жанров из Index (No ViewBag - No SelectList!)------------
+        //-------Create -> Получение авторов и жанров из Index + PreCreate (No ViewBag - No SelectList!)------------
         var authors = JSON.parse(localStorage.getItem("authors"));
         var genres = JSON.parse(localStorage.getItem("genres"));
-        console.log(authors)
+
         if (Array.isArray(authors) && Array.isArray(genres)) {
             $(authors).each(function (i, item) {
-                var option = $("<option></option>")
-                $(option).val(item["Id"]).html(item.LastName)    //=["LastName"]
-                $('#AuthorsId').append(option)
+                fillOptionsAuthors(item)
             })
             $(genres).each(function (i, item) {
-                var option = $("<option></option>")
-                $(option).val(item["Id"]).html(item["Name"])
-                $('#GenresId').append(option)
+                fillOptionsGenres(item)
             })
         }
-        else console.log("Sorry localStorage is empty!");
+        else console.log("Sorry localStorage is empty!");   
 
-        //-------при Edit -> установ. select в знач. полей книги---------
-        if (($('#headEdit').attr('data-type')) != undefined) {
-            //console.log($('#headEdit').attr('data-type'));
+        //------- Edit -> установ. select в знач. полей книги---------
+        $.ajax({
+            method: "GET",
+            url:"/Book/PreCreate",
+            success: function (data) {
+                $(data).each((ind, item) => {
+                    console.log(item)
+                    if (item["FirstName"] != undefined) {
+                        var author = { Id: item["Id"], LastName: item["LastName"] }
+                        fillOptionsAuthors(author)
+                    }
+                    if (item["Name"] != undefined) {
+                        var genre = { Id: item["Id"], Name: item["Name"] }
+                        fillOptionsGenres(genre)
+                    }
+                })
+            }
+        })
 
-            $('#AuthorsId').val(@authorId);
-            $('#GenresId').val(@genreId);
-        }
-
-        //-------------Upload Files (+ антидребезг отправки)---------------------------
+        //-------------Upload Files ---------------------------
         var myForm = document.forms[0];
         $('input[type=submit').on('click', function (e) {
             $(this).attr("disabled", "disabled");
@@ -73,6 +80,20 @@
             }
         });
 
+        //--------FUNCTION----------------    
+        function fillOptionsAuthors(item){
+            var option = $("<option></option>")
+            $(option).val(item["Id"]).html(item.LastName)
+            $('#AuthorsId').append(option)
+        }
+        function fillOptionsGenres(item) {
+            var option = $("<option></option>")
+            $(option).val(item["Id"]).html(item["Name"])
+            $('#GenresId').append(option)
+        }
+        window.onunload = function (e) {
+            localStorage.clear()
+        }
     })
 </script>
 
@@ -84,6 +105,7 @@
         <h2 id="headEdit" data-type="edit" data-num1="authorEmptyId" data-num2="genreEmptyId">Edit</h2>
     }
 }
+        
 @using (Html.BeginForm("Create", "Book", FormMethod.Post, new { enctype = "multipart/form-data" })) {
     @Html.AntiForgeryToken()
     <div class="form-horizontal">
@@ -94,7 +116,6 @@
             if (Model != null) {
                 @Html.HiddenFor(m => m.Id)
             }
-
         }
         <div style="display:flex">
             <div style="width:8%; height:10px;"></div>
@@ -130,7 +151,7 @@
         <div class="form-group">
             @Html.LabelFor(model => model.GenresId, htmlAttributes: new { @class = "control-label col-md-2" })
             <div class="col-md-10">
-                <select id="GenresId" name="GenresId"></select>
+                <select id="GenresId" name="GenresId">@genreId</select>
                 @Html.ValidationMessageFor(model => model.GenresId, "", new { @class = "text-danger" })
             </div>
         </div>
