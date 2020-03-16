@@ -1,4 +1,5 @@
-﻿@model WebLibrary.Books
+﻿@using WebLibrary.ViewModels
+@model BookVM
 
 @{
     ViewBag.Title = "Create";
@@ -24,12 +25,12 @@
                 fillOptionsGenres(item)
             })
         }
-        else console.log("Sorry localStorage is empty!");   
+        else console.log("Sorry localStorage is empty!");
 
         //------- Edit -> установ. select в знач. полей книги---------
         $.ajax({
             method: "GET",
-            url:"/Book/PreCreate",
+            url: "/Book/PreCreate",
             success: function (data) {
                 $(data).each((ind, item) => {
                     console.log(item)
@@ -80,8 +81,8 @@
             }
         });
 
-        //--------FUNCTION----------------    
-        function fillOptionsAuthors(item){
+        //--------FUNCTION----------------
+        function fillOptionsAuthors(item) {
             var option = $("<option></option>")
             $(option).val(item["Id"]).html(item.LastName)
             $('#AuthorsId').append(option)
@@ -105,7 +106,7 @@
         <h2 id="headEdit" data-type="edit" data-num1="authorEmptyId" data-num2="genreEmptyId">Edit</h2>
     }
 }
-        
+
 @using (Html.BeginForm("Create", "Book", FormMethod.Post, new { enctype = "multipart/form-data" })) {
     @Html.AntiForgeryToken()
     <div class="form-horizontal">

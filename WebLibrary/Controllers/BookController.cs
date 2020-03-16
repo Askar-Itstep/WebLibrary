@@ -66,7 +66,7 @@ namespace WebLibrary.Controllers
                 var json = JsonConvert.SerializeObject(dataList);
                 return new JsonResult
                 {
-                    Data = json,
+                    Data = dataList,    //json,
                     JsonRequestBehavior = JsonRequestBehavior.AllowGet
                 };
             }
