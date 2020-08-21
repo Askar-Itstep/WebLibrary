@@ -6,6 +6,8 @@ using WebLibrary.Entities;
 
 namespace WebLibrary.Repository
 {
+    //Паттерн Unit of Work позволяет упростить работу с различными репозиториями - 
+    //    т.е. все репозитории будут использовать один и тот же контекст данных.
     public class UnitOfWork : IUnitOfWork
     {
         private BaseRepository<Authors> authors;
