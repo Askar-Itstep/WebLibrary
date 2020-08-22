@@ -16,12 +16,17 @@ namespace WebLibrary
         {
             UnityConfig.RegisterTypes();    //использ. статич. метод класса UnityConfig
 
+            ////или прям здесь:
+            //// внедрение зависимостей Ninject
+            //NinjectModule registrations = new NinjectRegistrations();
+            //var kernel = new StandardKernel(registrations);
+            //DependencyResolver.SetResolver(new NinjectDependencyResolver(kernel));
+
             AreaRegistration.RegisterAllAreas();
             FilterConfig.RegisterGlobalFilters(GlobalFilters.Filters);
             RouteConfig.RegisterRoutes(RouteTable.Routes);
             BundleConfig.RegisterBundles(BundleTable.Bundles);
 
-            
         }
         protected void Application_EndRequest()
         {   

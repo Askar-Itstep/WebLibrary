@@ -19,7 +19,24 @@ namespace WebLibrary.App_Start
 
             DependencyResolver.SetResolver(new UnityDependencyResolver(container));
 
+            //// внедрение зависимостей2
+            ///а)сначала надо созд. класс NinjectRegistrations : NinjectModule
+            
+    //namespace Weblibrary.Utils //там где MyHelper
+    //{
+    //public class NinjectRegistrations : NinjectModule
+    //    {
+    //        public override void Load()
+    //        {
+    //            Bind<IRepository>().To<BookRepository>();
+    //        }
+    //    }
+    //}
+    //b)
+    //NinjectModule registrations = new NinjectRegistrations();
+    //var kernel = new StandardKernel(registrations);
+    //DependencyResolver.SetResolver(new NinjectDependencyResolver(kernel));
 
-        }
+}
     }
 }
